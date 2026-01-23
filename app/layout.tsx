@@ -11,10 +11,7 @@ export const metadata: Metadata = {
   title: 'Fostride R3Bin - AI-Powered Smart Waste Intelligence',
   description: 'Transform waste into actionable intelligence with R3Bin. AI-powered segregation, real-time analytics, and ESG compliance for campuses, corporates, and smart cities.',
 
-  icons: {
-    icon: '/images/fostride-logo-new.svg',
-    apple: '/images/fostride-logo-new.svg',
-  },
+
 }
 
 export default function RootLayout({
