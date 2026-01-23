@@ -150,7 +150,7 @@ export default function DashboardPage() {
     try {
       // 1. Collection Trends
       const { data: trendsData, error: trendsError } = await supabase
-        .from('wast_collection')
+        .from('waste_collections')
         .select('*')
         .order('date', { ascending: true })
 
