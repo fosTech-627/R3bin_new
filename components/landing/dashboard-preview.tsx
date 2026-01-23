@@ -54,7 +54,7 @@ export function DashboardPreview() {
               </Tabs>
             </div>
           </CardHeader>
-          
+
           <CardContent className="p-6">
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Waste Composition */}
@@ -98,7 +98,7 @@ export function DashboardPreview() {
                           key={i}
                           className="aspect-square rounded-md transition-colors hover:ring-2 hover:ring-primary/50"
                           style={{
-                            backgroundColor: `rgba(52, 211, 153, ${Math.random() * 0.8 + 0.15})`,
+                            backgroundColor: `rgba(52, 211, 153, ${(i % 5) * 0.15 + 0.2})`,
                           }}
                         />
                       ))}

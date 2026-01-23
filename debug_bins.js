@@ -9,20 +9,15 @@ const supabase = createClient(
 async function debugBins() {
     console.log('Debugging Bins Data...');
 
-    // Check bins table
-    const { data: bins, error: binsError } = await supabase.from('bins').select('*');
-    if (binsError) console.error('❌ Error fetching bins:', binsError.message);
-    else console.log(`✅ Total 'bins' count: ${bins.length}`);
+    const tablesToCheck = ['hourly_activity', 'alerts', 'waste_composition'];
 
-    // Check logs table
-    const { data: logs, error: logsError } = await supabase.from('r3bin_waste_logs').select('bin_id');
-    if (logsError) {
-        console.error('❌ Error fetching r3bin_waste_logs:', logsError.message);
-    } else {
-        console.log(`✅ Total logs count: ${logs.length}`);
-        const uniqueBins = new Set(logs.map(l => l.bin_id).filter(id => id)); // Filter nulls
-        console.log(`✅ Unique active bin_ids found: ${uniqueBins.size}`);
-        console.log('   Ids:', [...uniqueBins]);
+    for (const table of tablesToCheck) {
+        const { data, error } = await supabase.from(table).select('*').limit(1);
+        if (error) {
+            console.error(`❌ Table '${table}' Error:`, error.message);
+        } else {
+            console.log(`✅ Table '${table}' Exists. Rows: ${data.length}`);
+        }
     }
 }
 

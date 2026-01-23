@@ -195,13 +195,13 @@ export default function DashboardPage() {
         })
 
         const total = logsData.length
-        const mappedComp = Object.entries(counts).map(([material, count]) => {
+        const mappedComp = Object.entries(counts).map(([material, count], i) => {
           // Capitalize for display: "plastic" -> "Plastic"
           const displayName = material.charAt(0).toUpperCase() + material.slice(1)
           return {
             name: displayName,
             value: Math.round((count / total) * 100),
-            color: COLORS[material] || COLORS[displayName] || FALLBACK_COLORS[Math.floor(Math.random() * FALLBACK_COLORS.length)]
+            color: COLORS[material] || COLORS[displayName] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]
           }
         })
         setWasteComposition(mappedComp)
