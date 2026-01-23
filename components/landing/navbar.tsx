@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase"
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -17,6 +18,26 @@ const navItems = [
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [session, setSession] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setMobileMenuOpen(false)
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -44,9 +65,22 @@ export function Navbar() {
         </div>
 
         <div className="hidden lg:flex lg:items-center lg:gap-4">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            View Live Dashboard
-          </Button>
+          {session ? (
+            <>
+              <Link href="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+              <Button onClick={handleSignOut} variant="outline">
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <Link href="/login">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Sign in
+              </Button>
+            </Link>
+          )}
         </div>
 
         <button
@@ -76,9 +110,24 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              View Live Dashboard
-            </Button>
+            <div className="pt-4 border-t border-border">
+              {session ? (
+                <div className="space-y-3">
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full" variant="ghost">Dashboard</Button>
+                  </Link>
+                  <Button onClick={handleSignOut} className="w-full" variant="outline">
+                    Sign out
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                    Sign in
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
