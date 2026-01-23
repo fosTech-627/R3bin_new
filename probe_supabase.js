@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 async function probe() {
-    const tables = ['bins', 'alerts', 'waste_collections', 'waste_composition', 'hourly_activity', 'stats', 'collection_trends'];
+    const tables = ['wast_collection', 'waste_collection', 'waste_collections'];
 
     console.log('Probing tables...');
 

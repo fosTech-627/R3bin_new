@@ -49,9 +49,10 @@ import { formatDistanceToNow } from "date-fns"
 // Types matching Supabase tables
 type CollectionTrend = {
   date: string
-  recyclables: number
-  organic: number
-  general: number
+  metal: number
+  plastic: number
+  paper: number
+  mixed_waste: number
 }
 
 type WasteComposition = {
@@ -149,7 +150,7 @@ export default function DashboardPage() {
     try {
       // 1. Collection Trends
       const { data: trendsData, error: trendsError } = await supabase
-        .from('waste_collections')
+        .from('wast_collection')
         .select('*')
         .order('date', { ascending: true })
 
@@ -399,17 +400,21 @@ export default function DashboardPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={collectionTrends}>
                         <defs>
-                          <linearGradient id="colorRecyclables" x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id="colorMetal" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorPlastic" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#34d399" stopOpacity={0.3} />
                             <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
                           </linearGradient>
-                          <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
-                          </linearGradient>
-                          <linearGradient id="colorGeneral" x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id="colorPaper" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
                             <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorMixed" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -425,40 +430,55 @@ export default function DashboardPage() {
                         />
                         <Area
                           type="monotone"
-                          dataKey="recyclables"
+                          dataKey="metal"
+                          stackId="1"
+                          stroke="#a78bfa"
+                          fillOpacity={1}
+                          fill="url(#colorMetal)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="plastic"
+                          stackId="1"
                           stroke="#34d399"
                           fillOpacity={1}
-                          fill="url(#colorRecyclables)"
+                          fill="url(#colorPlastic)"
                         />
                         <Area
                           type="monotone"
-                          dataKey="organic"
-                          stroke="#fbbf24"
-                          fillOpacity={1}
-                          fill="url(#colorOrganic)"
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="general"
+                          dataKey="paper"
+                          stackId="1"
                           stroke="#60a5fa"
                           fillOpacity={1}
-                          fill="url(#colorGeneral)"
+                          fill="url(#colorPaper)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="mixed_waste"
+                          stackId="1"
+                          stroke="#94a3b8"
+                          fillOpacity={1}
+                          fill="url(#colorMixed)"
                         />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex items-center justify-center gap-6 mt-4">
+                  <div className="flex items-center justify-center gap-6 mt-4 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#34d399]" />
-                      <span className="text-sm text-muted-foreground">Recyclables</span>
+                      <div className="w-3 h-3 rounded-full bg-[#a78bfa]" />
+                      <span className="text-sm text-muted-foreground">Metal</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#fbbf24]" />
-                      <span className="text-sm text-muted-foreground">Organic</span>
+                      <div className="w-3 h-3 rounded-full bg-[#34d399]" />
+                      <span className="text-sm text-muted-foreground">Plastic</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-[#60a5fa]" />
-                      <span className="text-sm text-muted-foreground">General</span>
+                      <span className="text-sm text-muted-foreground">Paper</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#94a3b8]" />
+                      <span className="text-sm text-muted-foreground">Mixed Waste</span>
                     </div>
                   </div>
                 </CardContent>
