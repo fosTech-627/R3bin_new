@@ -102,12 +102,22 @@ type UIAlert = {
 }
 
 const COLORS: Record<string, string> = {
+  // Capitalized
   "Plastics": "#34d399",
+  "Plastic": "#34d399",
   "Paper": "#60a5fa",
   "Organic": "#fbbf24",
   "Metal": "#a78bfa",
   "Glass": "#f472b6",
-  "General": "#94a3b8"
+  "General": "#94a3b8",
+  "Mixed Waste": "#94a3b8",
+
+  // Lowercase from DB
+  "plastic": "#34d399",
+  "paper": "#60a5fa",
+  "metal": "#a78bfa",
+  "mixed": "#94a3b8",
+  "mixed waste": "#94a3b8"
 }
 
 const FALLBACK_COLORS = ["#34d399", "#60a5fa", "#fbbf24", "#a78bfa", "#f472b6"]
@@ -157,16 +167,22 @@ export default function DashboardPage() {
         // Aggregate counts from individual logs
         const counts: Record<string, number> = {}
         logsData.forEach((log: any) => {
-          const type = log.waste_type || 'Unknown'
+          let type = log.waste_type || 'Unknown'
+          // Normalize to lowercase
+          type = type.toLowerCase()
           counts[type] = (counts[type] || 0) + 1
         })
 
         const total = logsData.length
-        const mappedComp = Object.entries(counts).map(([material, count]) => ({
-          name: material,
-          value: Math.round((count / total) * 100),
-          color: COLORS[material] || FALLBACK_COLORS[Math.floor(Math.random() * FALLBACK_COLORS.length)]
-        }))
+        const mappedComp = Object.entries(counts).map(([material, count]) => {
+          // Capitalize for display: "plastic" -> "Plastic"
+          const displayName = material.charAt(0).toUpperCase() + material.slice(1)
+          return {
+            name: displayName,
+            value: Math.round((count / total) * 100),
+            color: COLORS[material] || COLORS[displayName] || FALLBACK_COLORS[Math.floor(Math.random() * FALLBACK_COLORS.length)]
+          }
+        })
         setWasteComposition(mappedComp)
       } else {
         // Fallback to manual table if logs table is missing/empty
