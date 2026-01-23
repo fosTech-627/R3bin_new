@@ -289,7 +289,7 @@ export default function DashboardPage() {
   const statsCards = [
     {
       title: "Total Waste Today",
-      value: "2,847 kg",  // Hardcoded for now as calculating daily sum needs more data logic
+      value: totalWaste,
       change: "+12%",
       trend: "up",
       icon: Trash2,
