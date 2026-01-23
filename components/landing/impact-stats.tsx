@@ -1,31 +1,8 @@
-import { Recycle, Leaf, TrendingUp, Gauge } from "lucide-react"
+"use client"
 
-const stats = [
-  {
-    icon: Recycle,
-    value: "127",
-    label: "Active Deployments",
-    description: "Across campuses and cities",
-  },
-  {
-    icon: TrendingUp,
-    value: "2.4M kg",
-    label: "Waste Sorted",
-    description: "And counting daily",
-  },
-  {
-    icon: Leaf,
-    value: "1,850 tons",
-    label: "Carbon Offset",
-    description: "CO2 emissions prevented",
-  },
-  {
-    icon: Gauge,
-    value: "94.2%",
-    label: "Accuracy",
-    description: "AI segregation precision",
-  },
-]
+import { useState, useEffect } from "react"
+import { Recycle, Leaf, TrendingUp, Gauge } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 
 const logos = [
   "TechCorp",
@@ -35,6 +12,48 @@ const logos = [
 ]
 
 export function ImpactStats() {
+  const [deploymentCount, setDeploymentCount] = useState("127")
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { count, error } = await supabase
+        .from('bins')
+        .select('*', { count: 'exact', head: true })
+
+      if (!error && count !== null) {
+        setDeploymentCount(count.toString())
+      }
+    }
+    fetchStats()
+  }, [])
+
+  const stats = [
+    {
+      icon: Recycle,
+      value: deploymentCount,
+      label: "Active Deployments",
+      description: "Across campuses and cities",
+    },
+    {
+      icon: TrendingUp,
+      value: "2.4M kg",
+      label: "Waste Sorted",
+      description: "And counting daily",
+    },
+    {
+      icon: Leaf,
+      value: "1,850 tons",
+      label: "Carbon Offset",
+      description: "CO2 emissions prevented",
+    },
+    {
+      icon: Gauge,
+      value: "94.2%",
+      label: "Accuracy",
+      description: "AI segregation precision",
+    },
+  ]
+
   return (
     <section className="py-20 border-y border-border bg-secondary/30">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
