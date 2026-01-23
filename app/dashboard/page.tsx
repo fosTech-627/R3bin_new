@@ -147,18 +147,42 @@ export default function DashboardPage() {
       else if (trendsData) setCollectionTrends(trendsData)
 
       // 2. Waste Composition
-      const { data: compData, error: compError } = await supabase
-        .from('waste_composition')
-        .select('*')
+      // 2. Waste Composition
+      // Try fetching from logs first
+      const { data: logsData, error: logsError } = await supabase
+        .from('3bin_waste_logs')
+        .select('waste_type')
 
-      if (compError) console.error('Error fetching composition:', compError)
-      else if (compData) {
-        const mappedComp = compData.map((item: any, index: number) => ({
-          name: item.material,
-          value: item.percentage || item.value,
-          color: COLORS[item.material] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]
+      if (!logsError && logsData && logsData.length > 0) {
+        // Aggregate counts from individual logs
+        const counts: Record<string, number> = {}
+        logsData.forEach((log: any) => {
+          const type = log.waste_type || 'Unknown'
+          counts[type] = (counts[type] || 0) + 1
+        })
+
+        const total = logsData.length
+        const mappedComp = Object.entries(counts).map(([material, count]) => ({
+          name: material,
+          value: Math.round((count / total) * 100),
+          color: COLORS[material] || FALLBACK_COLORS[Math.floor(Math.random() * FALLBACK_COLORS.length)]
         }))
         setWasteComposition(mappedComp)
+      } else {
+        // Fallback to manual table if logs table is missing/empty
+        const { data: compData, error: compError } = await supabase
+          .from('waste_composition')
+          .select('*')
+
+        if (compError) console.error('Error fetching composition:', compError)
+        else if (compData) {
+          const mappedComp = compData.map((item: any, index: number) => ({
+            name: item.material,
+            value: item.percentage || item.value,
+            color: COLORS[item.material] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]
+          }))
+          setWasteComposition(mappedComp)
+        }
       }
 
       // 3. Hourly Activity
@@ -601,10 +625,10 @@ export default function DashboardPage() {
                             <Badge
                               variant="outline"
                               className={`capitalize ${bin.status === 'critical'
-                                  ? 'text-red-400 border-red-400/30'
-                                  : bin.status === 'warning'
-                                    ? 'text-yellow-400 border-yellow-400/30'
-                                    : 'text-green-400 border-green-400/30'
+                                ? 'text-red-400 border-red-400/30'
+                                : bin.status === 'warning'
+                                  ? 'text-yellow-400 border-yellow-400/30'
+                                  : 'text-green-400 border-green-400/30'
                                 }`}
                             >
                               {bin.status}
