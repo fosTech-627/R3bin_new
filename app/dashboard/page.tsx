@@ -155,7 +155,22 @@ export default function DashboardPage() {
         .order('date', { ascending: true })
 
       if (trendsError) console.error('Error fetching trends:', trendsError)
-      else if (trendsData) setCollectionTrends(trendsData)
+      else if (trendsData) {
+        setCollectionTrends(trendsData)
+
+        // Calculate Total Waste Today (Sum of all categories for the current date)
+        const todayStr = new Date().toISOString().split('T')[0]
+        const todayData = trendsData.find((d: any) => d.date === todayStr)
+
+        let todayCount = 0
+        if (todayData) {
+          todayCount = (todayData.metal || 0) +
+            (todayData.plastic || 0) +
+            (todayData.paper || 0) +
+            (todayData.mixed_waste || 0)
+        }
+        setTotalWaste(`${todayCount} items`)
+      }
 
       // 2. Waste Composition
       // 2. Waste Composition

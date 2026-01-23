@@ -13,11 +13,10 @@ async function listTables() {
     // Alternative: Try to select from likely names again with better error logging
 
     const potentialNames = [
-        'wast_collection',
-        'waste_collection',
-        'waste_collections',
-        'wast_collections',
-        '3bin_waste_collection'
+        '3bin_waste_logs',
+        'r3bin_waste_logs',
+        'waste_logs',
+        'logs'
     ];
 
     for (const name of potentialNames) {
