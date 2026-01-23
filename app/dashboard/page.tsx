@@ -229,21 +229,34 @@ export default function DashboardPage() {
         setActiveBins(`${activeCount}/${binsData.length}`)
       }
 
-      // 5. Alerts
-      const { data: alertsData, error: alertsError } = await supabase
-        .from('alerts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10)
+      // 5. Alerts (from bins table)
+      const { data: binsAlertsData, error: binsAlertsError } = await supabase
+        .from('bins')
+        .select('bin_id, bin_alerts')
+        .not('bin_alerts', 'is', null) // Filter out bins with no alerts
 
-      if (alertsError) console.error('Error fetching alerts:', alertsError)
-      else if (alertsData) {
-        const mappedAlerts = alertsData.map((alert: any) => ({
-          id: alert.id,
-          type: alert.type,
-          message: alert.message,
-          time: alert.created_at ? formatDistanceToNow(new Date(alert.created_at), { addSuffix: true }) : 'Just now'
-        }))
+      if (binsAlertsError) {
+        console.error('Error fetching bin alerts:', binsAlertsError)
+      } else if (binsAlertsData) {
+        // Map bin alerts to the Alert structure
+        // Assuming bin_alerts is a text string like "Critical: Overflow" or a JSON/text field
+        const mappedAlerts: UIAlert[] = binsAlertsData.map((bin: any, index: number) => {
+          let type = 'info'
+          let message = bin.bin_alerts || 'Unknown Alert'
+
+          if (message.toLowerCase().includes('critical') || message.toLowerCase().includes('overflow')) {
+            type = 'critical'
+          } else if (message.toLowerCase().includes('warning') || message.toLowerCase().includes('low')) {
+            type = 'warning'
+          }
+
+          return {
+            id: index, // unique id not available directly for the alert itself if it's just a column
+            type: type,
+            message: `${bin.bin_id}: ${message}`,
+            time: 'Just now' // Timestamp not available in simple column
+          }
+        })
         setAlerts(mappedAlerts)
       }
 
