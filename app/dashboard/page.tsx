@@ -171,58 +171,35 @@ export default function DashboardPage() {
             (todayData.mixed_waste || 0)
         }
         setTotalWaste(`${todayCount} items`)
-      }
 
-      // 2. Waste Composition
-      // 2. Waste Composition & Active Bins Count
-      // Try fetching from logs first
-      const { data: logsData, error: logsError } = await supabase
-        .from('r3bin_waste_logs')
-        .select('waste_type, bin_id')
+        // Calculate Waste Composition from Waste Collections
+        let totalMetal = 0
+        let totalPlastic = 0
+        let totalPaper = 0
+        let totalMixed = 0
 
-      if (!logsError && logsData && logsData.length > 0) {
-        // Calculate Active Bins (Unique IDs in logs)
-        const uniqueBins = new Set(logsData.map((l: any) => l.bin_id))
-        activeCount = uniqueBins.size
-
-        // Aggregate counts from individual logs
-        const counts: Record<string, number> = {}
-        logsData.forEach((log: any) => {
-          let type = log.waste_type || 'Unknown'
-          // Normalize to lowercase
-          type = type.toLowerCase()
-          counts[type] = (counts[type] || 0) + 1
+        trendsData.forEach((d: any) => {
+          totalMetal += d.metal || 0
+          totalPlastic += d.plastic || 0
+          totalPaper += d.paper || 0
+          totalMixed += d.mixed_waste || 0
         })
 
-        const total = logsData.length
-        const mappedComp = Object.entries(counts).map(([material, count], i) => {
-          // Capitalize for display: "plastic" -> "Plastic"
-          const displayName = material.charAt(0).toUpperCase() + material.slice(1)
-          return {
-            name: displayName,
-            value: Math.round((count / total) * 100),
-            color: COLORS[material] || COLORS[displayName] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]
-          }
-        })
-        setWasteComposition(mappedComp)
-      } else {
-        // Fallback to manual table if logs table is missing/empty
-        const { data: compData, error: compError } = await supabase
-          .from('waste_composition')
-          .select('*')
+        const grandTotal = totalMetal + totalPlastic + totalPaper + totalMixed
 
-        if (compError) console.error('Error fetching composition:', compError)
-        else if (compData) {
-          const mappedComp = compData.map((item: any, index: number) => ({
-            name: item.material,
-            value: item.percentage || item.value,
-            color: COLORS[item.material] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]
-          }))
-          setWasteComposition(mappedComp)
-        }
+        // Helper to safely calculate percentage
+        const calcPct = (val: number) => grandTotal > 0 ? Math.round((val / grandTotal) * 100) : 0
+
+        const compositionData = [
+          { name: "Metal", value: calcPct(totalMetal), color: COLORS["Metal"] },
+          { name: "Plastic", value: calcPct(totalPlastic), color: COLORS["Plastic"] },
+          { name: "Paper", value: calcPct(totalPaper), color: COLORS["Paper"] },
+          { name: "Mixed Waste", value: calcPct(totalMixed), color: COLORS["Mixed Waste"] }
+        ]
+        setWasteComposition(compositionData)
       }
 
-      // 3. Hourly Activity
+      // 2. Hourly Activity
       const { data: hourData, error: hourError } = await supabase
         .from('hourly_activity')
         .select('*')
@@ -231,7 +208,7 @@ export default function DashboardPage() {
       if (hourError) console.error('Error fetching hourly activity:', hourError)
       else if (hourData) setHourlyActivity(hourData)
 
-      // 4. Bins
+      // 3. Bins
       const { data: binsData, error: binsError } = await supabase
         .from('bins')
         .select('*')
@@ -246,7 +223,10 @@ export default function DashboardPage() {
           status: bin.status
         }))
         setBinStatusData(mappedBins)
-        setActiveBins(`${activeCount}/${binsData.length}`) // Simplified active count
+
+        // Active Bins = Total Bins in table (assuming all in table are active)
+        activeCount = binsData.length
+        setActiveBins(`${activeCount}/${binsData.length}`)
       }
 
       // 5. Alerts
