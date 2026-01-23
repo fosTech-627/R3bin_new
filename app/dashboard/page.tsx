@@ -147,6 +147,7 @@ export default function DashboardPage() {
   const fetchData = async () => {
     setLoading(true)
     setError(null)
+    let activeCount = 0
     try {
       // 1. Collection Trends
       const { data: trendsData, error: trendsError } = await supabase
@@ -173,13 +174,17 @@ export default function DashboardPage() {
       }
 
       // 2. Waste Composition
-      // 2. Waste Composition
+      // 2. Waste Composition & Active Bins Count
       // Try fetching from logs first
       const { data: logsData, error: logsError } = await supabase
-        .from('3bin_waste_logs')
-        .select('waste_type')
+        .from('r3bin_waste_logs')
+        .select('waste_type, bin_id')
 
       if (!logsError && logsData && logsData.length > 0) {
+        // Calculate Active Bins (Unique IDs in logs)
+        const uniqueBins = new Set(logsData.map((l: any) => l.bin_id))
+        activeCount = uniqueBins.size
+
         // Aggregate counts from individual logs
         const counts: Record<string, number> = {}
         logsData.forEach((log: any) => {
@@ -241,7 +246,7 @@ export default function DashboardPage() {
           status: bin.status
         }))
         setBinStatusData(mappedBins)
-        setActiveBins(`${binsData.length}/${binsData.length}`) // Simplified active count
+        setActiveBins(`${activeCount}/${binsData.length}`) // Simplified active count
       }
 
       // 5. Alerts
