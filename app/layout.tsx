@@ -10,7 +10,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Fostride R3Bin - AI-Powered Smart Waste Intelligence',
   description: 'Transform waste into actionable intelligence with R3Bin. AI-powered segregation, real-time analytics, and ESG compliance for campuses, corporates, and smart cities.',
-  generator: 'v0.app',
+
   icons: {
     icon: [
       {
