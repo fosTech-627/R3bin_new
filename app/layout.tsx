@@ -12,21 +12,8 @@ export const metadata: Metadata = {
   description: 'Transform waste into actionable intelligence with R3Bin. AI-powered segregation, real-time analytics, and ESG compliance for campuses, corporates, and smart cities.',
 
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/images/fostride-logo-new.svg',
+    apple: '/images/fostride-logo-new.svg',
   },
 }
 
