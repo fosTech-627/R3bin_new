@@ -20,6 +20,11 @@ export default function DashboardLayout({
 
                 if (!session) {
                     router.push("/login")
+                } else {
+                    // Cleanup hash if present (common artifact from OAuth)
+                    if (window.location.hash) {
+                        window.history.replaceState(null, '', window.location.pathname)
+                    }
                 }
             } catch (error) {
                 console.error("Auth check failed", error)
