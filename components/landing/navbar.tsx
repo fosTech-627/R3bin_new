@@ -23,7 +23,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
         <Link href="/" className="flex items-center">
           <Image
-            src="/images/fostride-logo.png"
+            src="/images/fostride-logo-new.svg"
             alt="Fostride"
             width={140}
             height={36}

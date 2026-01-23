@@ -37,7 +37,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center mb-4">
               <Image
-                src="/images/fostride-logo.png"
+                src="/images/fostride-logo-new.svg"
                 alt="Fostride"
                 width={120}
                 height={32}
