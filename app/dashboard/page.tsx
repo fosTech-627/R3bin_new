@@ -230,31 +230,33 @@ export default function DashboardPage() {
       }
 
       // 5. Alerts (from bins table)
+      // Note: Column name appears to be "bin_alerts:" based on schema debug
       const { data: binsAlertsData, error: binsAlertsError } = await supabase
         .from('bins')
-        .select('bin_id, bin_alerts')
-        .not('bin_alerts', 'is', null) // Filter out bins with no alerts
+        .select('bin_id, "bin_alerts:"') // Use quotes to handle special char
+        .not('"bin_alerts:"', 'is', null)
 
       if (binsAlertsError) {
         console.error('Error fetching bin alerts:', binsAlertsError)
       } else if (binsAlertsData) {
         // Map bin alerts to the Alert structure
-        // Assuming bin_alerts is a text string like "Critical: Overflow" or a JSON/text field
         const mappedAlerts: UIAlert[] = binsAlertsData.map((bin: any, index: number) => {
-          let type = 'info'
-          let message = bin.bin_alerts || 'Unknown Alert'
+          // Supabase response might normalize keys or keep them with colon
+          const messageStr = bin['bin_alerts:'] || bin.bin_alerts || 'Unknown Alert'
 
-          if (message.toLowerCase().includes('critical') || message.toLowerCase().includes('overflow')) {
+          let type = 'info'
+
+          if (messageStr.toLowerCase().includes('critical') || messageStr.toLowerCase().includes('overflow')) {
             type = 'critical'
-          } else if (message.toLowerCase().includes('warning') || message.toLowerCase().includes('low')) {
+          } else if (messageStr.toLowerCase().includes('warning') || messageStr.toLowerCase().includes('low')) {
             type = 'warning'
           }
 
           return {
-            id: index, // unique id not available directly for the alert itself if it's just a column
+            id: index,
             type: type,
-            message: `${bin.bin_id}: ${message}`,
-            time: 'Just now' // Timestamp not available in simple column
+            message: `${bin.bin_id}: ${messageStr}`,
+            time: 'Just now'
           }
         })
         setAlerts(mappedAlerts)
