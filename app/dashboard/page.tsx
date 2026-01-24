@@ -249,6 +249,57 @@ export default function DashboardPage() {
 
     yPos += 60
 
+    // --- Environmental Impact ---
+    doc.setFontSize(14)
+    doc.setTextColor(primaryColor)
+    doc.setLineWidth(3)
+    doc.line(14, yPos - 5, 14, yPos + 5)
+    doc.text("Environmental Impact", 20, yPos)
+
+    yPos += 15
+
+    const impactBoxHeight = 50
+    const colWidth = (pageWidth - 28) / 3
+
+    // 3 Columns for Breakdown
+    doc.setFillColor(255, 255, 255) // White bg for clarity
+    doc.setDrawColor(200)
+    doc.setLineWidth(0.1)
+
+    // Box 1: Plastic
+    doc.roundedRect(14, yPos, colWidth - 5, impactBoxHeight, 2, 2, "S")
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Plastic Saved", 20, yPos + 15)
+    doc.setFontSize(12)
+    doc.setTextColor(COLORS["Plastic"])
+    doc.text(`${carbonBreakdown.plastic} kg CO2`, 20, yPos + 30)
+
+    // Box 2: Metal
+    doc.roundedRect(14 + colWidth, yPos, colWidth - 5, impactBoxHeight, 2, 2, "S")
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Metal Saved", 20 + colWidth, yPos + 15)
+    doc.setFontSize(12)
+    doc.setTextColor(COLORS["Metal"])
+    doc.text(`${carbonBreakdown.metal} kg CO2`, 20 + colWidth, yPos + 30)
+
+    // Box 3: Paper
+    doc.roundedRect(14 + (colWidth * 2), yPos, colWidth - 5, impactBoxHeight, 2, 2, "S")
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Paper Saved", 20 + (colWidth * 2), yPos + 15)
+    doc.setFontSize(12)
+    doc.setTextColor(COLORS["Paper"])
+    doc.text(`${carbonBreakdown.paper} kg CO2`, 20 + (colWidth * 2), yPos + 30)
+
+    // Total Impact Highlight
+    doc.setFontSize(11)
+    doc.setTextColor(primaryColor)
+    doc.text(`Total Carbon Offset: ${carbonOffset}`, pageWidth - 14, yPos - 5, { align: "right" })
+
+    yPos += 70
+
     // --- Table ---
     doc.setFontSize(14)
     doc.setTextColor(primaryColor)
