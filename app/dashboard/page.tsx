@@ -979,12 +979,40 @@ export default function DashboardPage() {
                         <XAxis dataKey="date" stroke="#71717a" fontSize={12} />
                         <YAxis stroke="#71717a" fontSize={12} />
                         <RechartsTooltip
-                          contentStyle={{
-                            backgroundColor: '#18181b',
-                            border: '1px solid #27272a',
-                            borderRadius: '8px'
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              // Sort payload by value descending
+                              const sortedPayload = [...payload].sort((a, b) => (b.value as number) - (a.value as number))
+
+                              return (
+                                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl">
+                                  <p className="text-zinc-100 font-semibold mb-2">{label}</p>
+                                  <div className="space-y-1">
+                                    {sortedPayload.map((entry: any, index: number) => {
+                                      // Capitalize name
+                                      let name = entry.name
+                                      if (name === 'mixed_waste') name = 'Mixed Waste'
+                                      else name = name.charAt(0).toUpperCase() + name.slice(1)
+
+                                      return (
+                                        <div key={index} className="flex items-center gap-2 text-xs">
+                                          <div
+                                            className="w-2 h-2 rounded-full"
+                                            style={{ backgroundColor: entry.color }}
+                                          />
+                                          <span className="text-zinc-400 capitalize">{name}:</span>
+                                          <span className="text-zinc-100 font-mono font-medium">
+                                            {entry.value}
+                                          </span>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )
+                            }
+                            return null
                           }}
-                          labelStyle={{ color: '#fafafa' }}
                         />
                         <Area
                           type="monotone"
