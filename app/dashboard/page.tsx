@@ -149,6 +149,11 @@ export default function DashboardPage() {
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
 
+  useEffect(() => {
+    console.log('DEBUG: scatterData', scatterData)
+    console.log('DEBUG: hourlyActivity', hourlyActivity)
+  }, [scatterData, hourlyActivity])
+
 
 
   // Stats
