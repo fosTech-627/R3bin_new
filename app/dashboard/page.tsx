@@ -71,7 +71,8 @@ type WasteComposition = {
 
 type HourlyActivity = {
   hour: string
-  activity: number
+  value: number // Raw count
+  date: string  // YYYY-MM-DD
 }
 
 type BinStatus = {
@@ -141,7 +142,8 @@ export default function DashboardPage() {
   // Data states
   const [collectionTrends, setCollectionTrends] = useState<CollectionTrend[]>([])
   const [wasteComposition, setWasteComposition] = useState<UIWasteComposition[]>([])
-  const [hourlyActivity, setHourlyActivity] = useState<HourlyActivity[]>([])
+  const [hourlyActivity, setHourlyActivity] = useState<HourlyActivity[]>([]) // Now flat list of all active hour cells
+  const [heatmapDateLabels, setHeatmapDateLabels] = useState<string[]>([]) // For Y-axis
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
 
@@ -630,13 +632,72 @@ export default function DashboardPage() {
           if (h >= 0 && h < 24) hourCounts[h]++
         })
 
-        const computedHourly = hourCounts.map((count, i) => ({
-          hour: `${i.toString().padStart(2, '0')}:00`,
-          activity: count,
-          raw: count
-        }))
 
-        setHourlyActivity(computedHourly)
+        // B. Heatmap Activity (2D: Hour x Date)
+        // We need to aggregate by both Date AND Hour
+        const activityMap: Record<string, number> = {} // Key: "YYYY-MM-DD|HH"
+        const uniqueDates = new Set<string>()
+
+        rawLogs.forEach((log: any) => {
+          // Extract Date & Hour manually to ensure consistency
+          try {
+            if (log.updated_at) {
+              // Universal Date Parsing Logic
+              let dateObj: Date | null = null
+
+              // 1. Try ISO
+              if (log.updated_at.includes('T')) {
+                dateObj = new Date(log.updated_at)
+              }
+              // 2. Try Custom format (YY-MM-DD_HH-MM-SS)
+              else {
+                const parts = log.updated_at.split(/[_ ]/)
+                const dParts = parts[0].split('-')
+                if (dParts.length >= 3) {
+                  let y = parseInt(dParts[0]); if (y < 100) y += 2000;
+                  let m = parseInt(dParts[1]) - 1;
+                  let d = parseInt(dParts[2]);
+
+                  let h = 0;
+                  if (parts[1]) {
+                    const tParts = parts[1].split('-')
+                    if (tParts.length >= 1) h = parseInt(tParts[0])
+                  }
+                  dateObj = new Date(Date.UTC(y, m, d, h, 0, 0))
+                }
+              }
+
+              if (dateObj && !isNaN(dateObj.getTime())) {
+                const dateStr = dateObj.toISOString().split('T')[0]
+                const hour = dateObj.getHours() // UTC or Local? Using getHours returns local unless we enforce UTC. Dashboard is local.
+
+                const key = `${dateStr}|${hour}`
+                activityMap[key] = (activityMap[key] || 0) + 1
+                uniqueDates.add(dateStr)
+              }
+            }
+          } catch (e) { }
+        })
+
+        // Sort dates descending (Newest top) and take top 7
+        const sortedDates = Array.from(uniqueDates).sort().reverse().slice(0, 7)
+        setHeatmapDateLabels(sortedDates)
+
+        // Flatten into state for rendering
+        const heatmapData: HourlyActivity[] = []
+        sortedDates.forEach(date => {
+          for (let h = 0; h < 24; h++) {
+            const key = `${date}|${h}`
+            const val = activityMap[key] || 0
+            heatmapData.push({
+              date: date,
+              hour: h.toString(),
+              value: val
+            })
+          }
+        })
+
+        setHourlyActivity(heatmapData)
       }
 
       // 3. Bins (From Registry)
@@ -1131,79 +1192,81 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* Heatmap Logic */}
-                  {(() => {
-                    // Safety check for valid data
-                    const validData = Array.isArray(hourlyActivity) && hourlyActivity.length > 0
-                    const maxVal = validData ? (Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1) : 1
-
-                    // Generate Gradient Stops
-                    const gradientStops = validData ? hourlyActivity.map((slot: any, index: number) => {
-                      const val = slot.activity || 0
-                      const intensity = val / maxVal
-                      const percent = (index / 23) * 100
-
-                      // Color Interpolation (Blue -> Red)
-                      // Blue(210) -> Cyan(180) -> Green(120) -> Yellow(60) -> Red(0)
-                      let hue = 210
-                      if (intensity > 0) {
-                        hue = 210 - (intensity * 210)
-                      }
-                      const color = `hsl(${Math.max(0, hue)}, 85%, 50%)`
-                      return `${color} ${percent}%`
-                    }).join(', ') : '#3b82f6 0%, #3b82f6 100%'
-
-                    const backgroundStyle = {
-                      background: `linear-gradient(to right, ${gradientStops})`,
-                      filter: 'blur(8px)', // Blur for smooth "heat" effect
-                      opacity: 0.8
-                    }
-
-                    return (
-                      <div className="h-[140px] w-full mt-6 relative rounded-xl overflow-hidden border border-zinc-800/50 bg-zinc-900/50">
-                        {/* The Glowing Heatmap Background */}
-                        <div className="absolute inset-0 w-full h-full transform scale-105" style={backgroundStyle} />
-
-                        {/* Overlay Interaction Layer (Transparent Chart) */}
-                        <div className="absolute inset-0 z-10 opacity-0 hover:opacity-100 transition-opacity">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={hourlyActivity}>
-                              <RechartsTooltip
-                                cursor={{ fill: 'rgba(255,255,255,0.1)' }}
-                                content={({ active, payload, label }) => {
-                                  if (active && payload && payload.length) {
-                                    return (
-                                      <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl translate-y-[-100%]">
-                                        <p className="text-zinc-100 font-semibold mb-1">{label}</p>
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-2 h-2 rounded-full bg-white" />
-                                          <span className="text-zinc-400 text-xs">Activity:</span>
-                                          <span className="text-white font-mono font-bold text-sm">
-                                            {payload[0].value}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    )
-                                  }
-                                  return null
-                                }}
-                              />
-                              <Bar dataKey="activity" fill="transparent" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-
-                        {/* Axis Labels Overlay (Bottom) */}
-                        <div className="absolute bottom-1 left-4 right-4 flex justify-between text-[10px] text-white/70 font-mono font-bold pointer-events-none z-20 mix-blend-overlay">
-                          <span>00:00</span>
-                          <span>06:00</span>
-                          <span>12:00</span>
-                          <span>18:00</span>
-                          <span>23:00</span>
-                        </div>
+                  {/* 2D Heatmap Grid (Date x Time) */}
+                  <div className="mt-4 overflow-x-auto">
+                    <div className="min-w-[500px]">
+                      {/* X-Axis Labels (Time) */}
+                      <div className="flex pl-20 mb-2 relative h-4">
+                        {[0, 6, 12, 18, 23].map(h => (
+                          <div key={h} className="text-[10px] text-muted-foreground font-mono absolute" style={{
+                            left: `calc(5rem + ${((h / 24) * 100)}% - 5px)`
+                          }}>
+                            {h.toString().padStart(2, '0')}:00
+                          </div>
+                        ))}
                       </div>
-                    )
-                  })()}
+
+                      <div className="space-y-1">
+                        {heatmapDateLabels.map((dateStr, rowIdx) => (
+                          <div key={dateStr} className="flex items-center gap-2">
+                            {/* Y-Axis Label (Date) */}
+                            <div className="w-20 text-[10px] text-muted-foreground text-right font-mono truncate">
+                              {formatDistanceToNow(new Date(dateStr), { addSuffix: true }).replace('about', '').trim()}
+                            </div>
+
+                            {/* 24 Hour Grid Cells */}
+                            <div className="flex-1 grid grid-cols-24 gap-1">
+                              {Array.from({ length: 24 }).map((_, hour) => {
+                                const cellData = hourlyActivity.find(d => d.date === dateStr && d.hour == hour.toString())
+                                const val = cellData?.value || 0
+
+                                // Calculate Color Intensity
+                                const maxVal = Math.max(...hourlyActivity.map(h => h.value), 1)
+                                const intensity = val / maxVal
+
+                                // Color Logic: Black (0) -> Gradient (Activity)
+                                let bgStyle = { backgroundColor: '#09090b', boxShadow: 'none' } // Default Black
+
+                                if (val > 0) {
+                                  // Blue(210) -> Red(0) Spectrum
+                                  const hue = 210 - (intensity * 210)
+                                  const color = `hsl(${Math.max(0, hue)}, 85%, 55%)`
+                                  bgStyle = {
+                                    backgroundColor: color,
+                                    boxShadow: `0 0 ${8 * intensity}px ${color}` // Glow effect
+                                  }
+                                }
+
+                                return (
+                                  <TooltipProvider key={hour}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div
+                                          className="aspect-square rounded-[2px] w-full transition-all hover:scale-125 hover:z-10 cursor-crosshair border border-zinc-800/30"
+                                          style={bgStyle}
+                                        />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="bg-zinc-950 border-zinc-800 text-white text-xs">
+                                        <p className="font-bold mb-1">{dateStr} {hour.toString().padStart(2, '0')}:00</p>
+                                        <p>{val} items collected</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Empty State / Legend helper */}
+                      {heatmapDateLabels.length === 0 && (
+                        <div className="text-center text-xs text-muted-foreground py-8">
+                          Waiting for data to populate grid...
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
