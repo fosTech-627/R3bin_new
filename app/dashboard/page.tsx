@@ -903,6 +903,86 @@ export default function DashboardPage() {
       </main>
 
       <Footer />
+
+      {/* Hidden PDF Report Template */}
+      <div id="report-template" style={{ display: 'none', width: '800px', backgroundColor: '#f4f6f8', padding: '30px', fontFamily: '"Segoe UI", Arial, sans-serif' }}>
+        <div style={{ maxWidth: '1100px', margin: 'auto', background: '#ffffff', padding: '30px 40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #2e7d32', paddingBottom: '15px', marginBottom: '30px' }}>
+            <div className="logo-section">
+              {/* Use public image if available, or text fallback */}
+              <img src="/images/fostride-logo-new.svg" alt="Fostride Logo" style={{ height: '60px', filter: 'brightness(0) saturate(100%) invert(29%) sepia(35%) saturate(3088%) hue-rotate(97deg) brightness(93%) contrast(90%)' }} />
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <h1 style={{ margin: 0, fontSize: '26px', color: '#2e7d32' }}>R3Bin Waste Analysis Report</h1>
+              <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#555' }}>Smart Segregation • Data-Driven Sustainability</p>
+              <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>Generated: {new Date().toLocaleDateString()}</p>
+            </div>
+          </div>
+
+          {/* Installation Details */}
+          <div style={{ marginBottom: '30px' }}>
+            <h2 style={{ fontSize: '18px', color: '#2e7d32', borderLeft: '5px solid #2e7d32', paddingLeft: '10px', marginBottom: '15px' }}>Installation Details</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px 30px' }}>
+              <div style={{ background: '#f9fafb', padding: '12px 15px', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                <span style={{ display: 'block', fontSize: '12px', color: '#777' }}>Bin Location</span>
+                <strong style={{ fontSize: '15px', color: '#222' }}>{selectedLocation === 'all' ? 'All Locations' : selectedLocation}</strong>
+              </div>
+              <div style={{ background: '#f9fafb', padding: '12px 15px', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                <span style={{ display: 'block', fontSize: '12px', color: '#777' }}>Active Bins</span>
+                <strong style={{ fontSize: '15px', color: '#222' }}>{activeBins}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div style={{ marginBottom: '30px' }}>
+            <h2 style={{ fontSize: '18px', color: '#2e7d32', borderLeft: '5px solid #2e7d32', paddingLeft: '10px', marginBottom: '15px' }}>Waste Collection Summary</h2>
+            <div style={{ background: '#e8f5e9', padding: '18px', borderRadius: '6px', borderLeft: '6px solid #2e7d32', fontSize: '15px', color: '#333' }}>
+              <strong>Total Waste Collected:</strong> {totalWaste}
+              <br />
+              <strong>Collection Period:</strong> {timeRange === 'all' ? 'All Time' : `Last ${timeRange}`}
+            </div>
+          </div>
+
+          {/* Table */}
+          <div style={{ marginBottom: '30px' }}>
+            <h2 style={{ fontSize: '18px', color: '#2e7d32', borderLeft: '5px solid #2e7d32', paddingLeft: '10px', marginBottom: '15px' }}>Daily Waste Trends</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#2e7d32', color: '#fff' }}>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Date</th>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Plastic</th>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Metal</th>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Paper</th>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Mixed</th>
+                  <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', fontSize: '14px' }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {collectionTrends.slice(-10).map((row, i) => (
+                  <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#fff' : '#f6f6f6', color: '#333' }}>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.date}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.plastic}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.metal}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.paper}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.mixed_waste}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>{row.plastic + row.metal + row.paper + row.mixed_waste}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          <div style={{ marginTop: '40px', paddingTop: '15px', borderTop: '1px solid #ddd', textAlign: 'center', fontSize: '13px', color: '#666' }}>
+            Generated by <strong style={{ color: '#2e7d32' }}>Fostride R3Bin</strong> • AI-Powered Waste Segregation System <br />
+            © {new Date().getFullYear()} Fostride | Sustainability Through Innovation
+          </div>
+
+        </div>
+      </div>
     </div>
   )
 }
