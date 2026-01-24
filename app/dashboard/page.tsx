@@ -719,10 +719,7 @@ export default function DashboardPage() {
       // 5. Alerts (from r3bin_records - Fill Levels)
       console.log('DEBUG: Fetching r3bin_records...')
       const { data: binRecord, error: recordError } = await supabase
-        .from('r3bin_records')
-        .select('*')
-        .limit(1)
-        .maybeSingle()
+        .rpc('get_latest_bin_status')
 
       if (recordError) {
         console.error('Error fetching r3bin_records:', JSON.stringify(recordError, null, 2))
