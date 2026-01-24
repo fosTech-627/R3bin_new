@@ -165,28 +165,30 @@ export default function DashboardPage() {
     const pageHeight = doc.internal.pageSize.height
     const primaryColor = "#1b7f4b"
 
-    // --- Background Letterhead ---
-    try {
-      const logoUrl = '/images/report-letterhead.png'
-      const img = new Image()
-      img.src = logoUrl
-      await new Promise((resolve, reject) => {
-        img.onload = resolve
-        img.onerror = reject
-      })
-      doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight)
-    } catch (e) {
-      console.warn("Could not load letterhead", e)
-    }
-
     // --- Content Header ---
     doc.setFont("helvetica", "bold")
     doc.setTextColor(primaryColor)
     doc.setFontSize(22)
-    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 45, { align: "right" })
+
+    // Logo / Brand
+    doc.text("Fostride", 14, 25)
+
+    // Title
+    doc.setFontSize(20)
+    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 25, { align: "right" })
+
+    // Tagline
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text("Smart Segregation • Data-Driven Sustainability", pageWidth - 14, 32, { align: "right" })
+
+    // Separator Line
+    doc.setDrawColor(primaryColor)
+    doc.setLineWidth(1)
+    doc.line(14, 38, pageWidth - 14, 38)
 
     // --- Installation Details ---
-    let yPos = 65
+    let yPos = 55
 
     // Section Header Style Helper
     const drawSectionHeader = (title: string, y: number) => {
