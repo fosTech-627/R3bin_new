@@ -41,7 +41,10 @@ import {
   Cell,
   BarChart,
   Bar,
-  Legend
+  Legend,
+  ScatterChart,
+  Scatter,
+  ZAxis
 } from "recharts"
 import {
   Tooltip,
@@ -142,6 +145,7 @@ export default function DashboardPage() {
   const [collectionTrends, setCollectionTrends] = useState<CollectionTrend[]>([])
   const [wasteComposition, setWasteComposition] = useState<UIWasteComposition[]>([])
   const [hourlyActivity, setHourlyActivity] = useState<HourlyActivity[]>([])
+  const [scatterData, setScatterData] = useState<any[]>([])
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
 
@@ -616,28 +620,73 @@ export default function DashboardPage() {
           return null
         }
 
-        const hourCounts = new Array(24).fill(0)
+        // 2D Scatter Data Processing
+        const scatterPoints: any[] = []
+        const dateMap = new Map<string, number>() // Date string -> Y index
+
+        // Helper to get consistent date keys
+        const getDateKey = (d: Date) => d.toISOString().split('T')[0]
+
+        // Initialize Y-axis indices based on time range (0 = Today/Newest)
+        // We'll build this dynamically from the logs or pre-fill based on range? 
+        // Dynamic is safer for "scattered" look.
+
+        const groupedData = new Map<string, number>() // "DateKey|Hour.Minute" -> Count
 
         rawLogs.forEach((log: any) => {
           const dateObj = getLogDate(log.updated_at)
-
-          // Check Filter
           if (!dateObj) return
           if (cutoffDate && dateObj < cutoffDate) return
 
-          // Count Hour
+          const dKey = getDateKey(dateObj)
+          // Round to nearest 30 mins for cleaner scatter clusters
+          const h = dateObj.getHours()
+          const m = dateObj.getMinutes() < 30 ? 0 : 30
+          const timeVal = h + (m / 60)
+
+          const key = `${dKey}|${timeVal}`
+          groupedData.set(key, (groupedData.get(key) || 0) + 1)
+        })
+
+        // Convert grouped data to scatter points
+        // Sort dates to assign Y index
+        const uniqueDates = Array.from(new Set(Array.from(groupedData.keys()).map(k => k.split('|')[0]))).sort().reverse()
+
+        groupedData.forEach((count, key) => {
+          const [dStr, timeDesc] = key.split('|')
+          const timeVal = parseFloat(timeDesc)
+          const yIndex = uniqueDates.indexOf(dStr) // 0 is newest
+
+          if (yIndex !== -1) {
+            scatterPoints.push({
+              x: timeVal,
+              y: yIndex,
+              z: count, // Intensity
+              date: dStr,
+              hourStr: `${Math.floor(timeVal).toString().padStart(2, '0')}:${(timeVal % 1 * 60).toString().padStart(2, '0')}`
+            })
+          }
+        })
+
+        setScatterData(scatterPoints)
+
+        // Legacy Hourly Activity (Still useful to populate for backup or other views)
+        const hourCounts = new Array(24).fill(0)
+        rawLogs.forEach((log: any) => {
+          const dateObj = getLogDate(log.updated_at)
+          if (!dateObj) return
+          if (cutoffDate && dateObj < cutoffDate) return
           const h = dateObj.getHours()
           if (h >= 0 && h < 24) hourCounts[h]++
         })
-
         const computedHourly = hourCounts.map((count, i) => ({
           hour: `${i.toString().padStart(2, '0')}:00`,
           activity: count,
           raw: count
         }))
-
         setHourlyActivity(computedHourly)
       }
+
 
       // 3. Bins (From Registry)
       const { data: registryData, error: registryError } = await supabase
@@ -1131,79 +1180,82 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* Heatmap Logic */}
-                  {(() => {
-                    // Safety check for valid data
-                    const validData = Array.isArray(hourlyActivity) && hourlyActivity.length > 0
-                    const maxVal = validData ? (Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1) : 1
+                  <div className="h-[250px] w-full mt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ScatterChart
+                        margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={true} vertical={false} />
+                        <XAxis
+                          type="number"
+                          dataKey="x"
+                          name="Time"
+                          domain={[0, 24]}
+                          tickCount={7}
+                          stroke="#71717a"
+                          fontSize={12}
+                          tickFormatter={(val) => `${val}:00`}
+                        />
+                        <YAxis
+                          type="number"
+                          dataKey="y"
+                          name="Date"
+                          domain={['dataMin', 'dataMax']}
+                          stroke="#71717a"
+                          fontSize={11}
+                          tickFormatter={(val) => {
+                            // Find date string from scatterData
+                            // Since Y is index, we need to map back to date
+                            // We can use the first matching point
+                            const point = scatterData.find((d: any) => d.y === val)
+                            return point ? point.date : ''
+                          }}
+                          width={80}
+                        />
+                        <ZAxis type="number" dataKey="z" range={[50, 400]} name="Count" />
+                        <RechartsTooltip
+                          cursor={{ strokeDasharray: '3 3' }}
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload
+                              return (
+                                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl">
+                                  <p className="text-zinc-100 font-semibold mb-1">{data.date}</p>
+                                  <div className="flex flex-col gap-1 text-xs">
+                                    <div className="flex justify-between gap-4">
+                                      <span className="text-zinc-400">Time:</span>
+                                      <span className="text-white font-mono">{data.hourStr}</span>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                      <span className="text-zinc-400">Waste:</span>
+                                      <span className="text-emerald-400 font-bold">{data.z} items</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }
+                            return null
+                          }}
+                        />
+                        <Scatter name="Activity" data={scatterData} fill="#34d399">
+                          {scatterData.map((entry, index) => {
+                            // Color based on intensity (Z)
+                            // Simple threshold or continuous gradient
+                            const maxZ = Math.max(...scatterData.map((s: any) => s.z)) || 1
+                            const intensity = entry.z / maxZ
 
-                    // Generate Gradient Stops
-                    const gradientStops = validData ? hourlyActivity.map((slot: any, index: number) => {
-                      const val = slot.activity || 0
-                      const intensity = val / maxVal
-                      const percent = (index / 23) * 100
+                            // Blue(Low) -> Green -> Yellow -> Red(High)
+                            let hue = 210
+                            if (intensity > 0) hue = 210 - (intensity * 210)
 
-                      // Color Interpolation (Blue -> Red)
-                      // Blue(210) -> Cyan(180) -> Green(120) -> Yellow(60) -> Red(0)
-                      let hue = 210
-                      if (intensity > 0) {
-                        hue = 210 - (intensity * 210)
-                      }
-                      const color = `hsl(${Math.max(0, hue)}, 85%, 50%)`
-                      return `${color} ${percent}%`
-                    }).join(', ') : '#3b82f6 0%, #3b82f6 100%'
+                            const color = `hsl(${Math.max(0, hue)}, 85%, 60%)`
 
-                    const backgroundStyle = {
-                      background: `linear-gradient(to right, ${gradientStops})`,
-                      filter: 'blur(8px)', // Blur for smooth "heat" effect
-                      opacity: 0.8
-                    }
-
-                    return (
-                      <div className="h-[140px] w-full mt-6 relative rounded-xl overflow-hidden border border-zinc-800/50 bg-zinc-900/50">
-                        {/* The Glowing Heatmap Background */}
-                        <div className="absolute inset-0 w-full h-full transform scale-105" style={backgroundStyle} />
-
-                        {/* Overlay Interaction Layer (Transparent Chart) */}
-                        <div className="absolute inset-0 z-10 opacity-0 hover:opacity-100 transition-opacity">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={hourlyActivity}>
-                              <RechartsTooltip
-                                cursor={{ fill: 'rgba(255,255,255,0.1)' }}
-                                content={({ active, payload, label }) => {
-                                  if (active && payload && payload.length) {
-                                    return (
-                                      <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl translate-y-[-100%]">
-                                        <p className="text-zinc-100 font-semibold mb-1">{label}</p>
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-2 h-2 rounded-full bg-white" />
-                                          <span className="text-zinc-400 text-xs">Activity:</span>
-                                          <span className="text-white font-mono font-bold text-sm">
-                                            {payload[0].value}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    )
-                                  }
-                                  return null
-                                }}
-                              />
-                              <Bar dataKey="activity" fill="transparent" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-
-                        {/* Axis Labels Overlay (Bottom) */}
-                        <div className="absolute bottom-1 left-4 right-4 flex justify-between text-[10px] text-white/70 font-mono font-bold pointer-events-none z-20 mix-blend-overlay">
-                          <span>00:00</span>
-                          <span>06:00</span>
-                          <span>12:00</span>
-                          <span>18:00</span>
-                          <span>23:00</span>
-                        </div>
-                      </div>
-                    )
-                  })()}
+                            return <Cell key={`cell-${index}`} fill={color} stroke={color} fillOpacity={0.6} />
+                          })}
+                        </Scatter>
+                      </ScatterChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
 
