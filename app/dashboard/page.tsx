@@ -45,6 +45,8 @@ import {
 } from "recharts"
 import { supabase } from "@/lib/supabase"
 import { formatDistanceToNow } from "date-fns"
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 // Types matching Supabase tables
 type CollectionTrend = {
@@ -136,9 +138,65 @@ export default function DashboardPage() {
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
 
+
+
   // Stats
   const [totalWaste, setTotalWaste] = useState("0 kg")
   const [activeBins, setActiveBins] = useState("0/0")
+
+  const handleExport = () => {
+    const doc = new jsPDF()
+
+    // Title
+    doc.setFontSize(20)
+    doc.text("Waste Intelligence Report", 14, 22)
+
+    doc.setFontSize(11)
+    doc.setTextColor(100)
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30)
+
+    // Summary Stats
+    doc.setFontSize(14)
+    doc.setTextColor(0)
+    doc.text("Dashboard Summary", 14, 45)
+
+    const summaryData = [
+      ["Total Waste Today", totalWaste],
+      ["Active Bins", activeBins],
+      ["Recycling Rate", "94.2%"], // Static for now, as per cards
+      ["Carbon Offset", "847 kg"]
+    ]
+
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: summaryData,
+      theme: 'grid',
+      headStyles: { fillColor: [52, 211, 153] } // Green-ish
+    })
+
+    // Bin Status Table
+    doc.text("Bin Status Overview", 14, (doc as any).lastAutoTable.finalY + 15)
+
+    const tableData = binStatusData.map(bin => [
+      bin.id,
+      bin.location,
+      `${bin.fillLevel}%`,
+      bin.lastCollection,
+      bin.status
+    ])
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Bin ID', 'Location', 'Fill Level', 'Last Active', 'Status']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [167, 139, 250] } // Purple-ish
+    })
+
+    // Save
+    doc.save(`waste-report-${new Date().toISOString().split('T')[0]}.pdf`)
+  }
 
   useEffect(() => {
     fetchData()
@@ -511,7 +569,7 @@ export default function DashboardPage() {
                 <Button variant="outline" size="icon" className="border-border bg-transparent" onClick={fetchData}>
                   <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 </Button>
-                <Button variant="outline" className="border-border bg-transparent">
+                <Button variant="outline" className="border-border bg-transparent" onClick={handleExport}>
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>
