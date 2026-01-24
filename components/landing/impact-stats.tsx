@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Recycle, Leaf, TrendingUp, Gauge } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 
 const logos = [
   "TechCorp",
@@ -12,16 +13,31 @@ const logos = [
 ]
 
 export function ImpactStats() {
-  const [deploymentCount, setDeploymentCount] = useState("127")
+  const [deploymentCount, setDeploymentCount] = useState(127)
+  const [wasteSorted, setWasteSorted] = useState(0)
+  const [carbonOffset, setCarbonOffset] = useState(0)
 
   useEffect(() => {
     async function fetchStats() {
-      const { count, error } = await supabase
-        .from('bins')
-        .select('*', { count: 'exact', head: true })
+      const { data, error } = await supabase.rpc('get_public_impact_stats')
 
-      if (!error && count !== null) {
-        setDeploymentCount(count.toString())
+      if (!error && data) {
+        setDeploymentCount(data.active_bins || 127)
+
+        // Calculate Total Waste (Items)
+        const totalItems = (data.plastic || 0) + (data.metal || 0) + (data.paper || 0) + (data.mixed || 0)
+        setWasteSorted(totalItems)
+
+        // Calculate Carbon Offset
+        // Estimating average item weights: Plastic 20g, Metal 15g, Paper 10g
+        // Factors: Plastic 2.5kg CO2/kg, Metal 10kg CO2/kg, Paper 1kg CO2/kg
+
+        // Offset = (Count * Weight_kg * Factor)
+        const plasticOffset = (data.plastic || 0) * 0.02 * 2.5  // 0.05 per item
+        const metalOffset = (data.metal || 0) * 0.015 * 10  // 0.15 per item
+        const paperOffset = (data.paper || 0) * 0.01 * 1    // 0.01 per item
+
+        setCarbonOffset(plasticOffset + metalOffset + paperOffset)
       }
     }
     fetchStats()
@@ -30,19 +46,19 @@ export function ImpactStats() {
   const stats = [
     {
       icon: Recycle,
-      value: deploymentCount,
+      value: <AnimatedNumber value={deploymentCount} decimalPlaces={0} />,
       label: "Active Deployments",
       description: "Across campuses and cities",
     },
     {
       icon: TrendingUp,
-      value: "2.4M kg",
+      value: <><AnimatedNumber value={wasteSorted} decimalPlaces={0} /> items</>,
       label: "Waste Sorted",
       description: "And counting daily",
     },
     {
       icon: Leaf,
-      value: "1,850 tons",
+      value: <><AnimatedNumber value={carbonOffset} decimalPlaces={2} /> kg</>,
       label: "Carbon Offset",
       description: "CO2 emissions prevented",
     },
