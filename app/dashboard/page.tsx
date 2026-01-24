@@ -574,39 +574,47 @@ export default function DashboardPage() {
 
       }
 
-      // 2. Hourly Activity (Calculated from rawLogs)
+      // 2. Hourly Activity (Calculated from FILTERED logs)
       if (rawLogs) {
+        // Filter rawLogs based on timeRange (Logic duplicated from Trends filter for clarity)
+        const now = new Date()
+        let cutoffDate: Date | null = new Date()
+        switch (timeRange) {
+          case '24h': cutoffDate.setDate(now.getDate() - 1); break;
+          case '7d': cutoffDate.setDate(now.getDate() - 7); break;
+          case '30d': cutoffDate.setDate(now.getDate() - 30); break;
+          case '90d': cutoffDate.setDate(now.getDate() - 90); break;
+          case 'all': cutoffDate = null; break;
+          default: cutoffDate.setDate(now.getDate() - 7);
+        }
+
+        const filteredLogsForHours = cutoffDate
+          ? rawLogs.filter((l: any) => new Date(l.updated_at) >= cutoffDate)
+          : rawLogs
+
         const hourCounts = new Array(24).fill(0)
 
-        rawLogs.forEach((log: any) => {
+        filteredLogsForHours.forEach((log: any) => {
           if (!log.updated_at) return
           try {
-            // Parse date similar to above
-            const datePart = log.updated_at.split('T')[0] // or split space
             let h = 0
-
             if (log.updated_at.includes('T')) {
               const dateObj = new Date(log.updated_at)
-              // Use local hour or UTC? Use local for user relevance if possible, or UTC if that's stored.
-              // Assuming updated_at is generic ISO, let's use getHours() (local)
               if (!isNaN(dateObj.getTime())) h = dateObj.getHours()
             } else {
-              // Custom format YY-MM-DD_HH-mm-ss
               const timePart = log.updated_at.split(/[_ ]/)[1]
               if (timePart) {
                 h = parseInt(timePart.split('-')[0])
               }
             }
             if (h >= 0 && h < 24) hourCounts[h]++
-          } catch (e) {
-            // ignore parse error
-          }
+          } catch (e) { }
         })
 
         const computedHourly = hourCounts.map((count, i) => ({
           hour: `${i.toString().padStart(2, '0')}:00`,
           activity: count,
-          raw: count // keep for intensity calc
+          raw: count
         }))
 
         setHourlyActivity(computedHourly)
