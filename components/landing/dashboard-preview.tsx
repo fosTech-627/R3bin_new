@@ -1,26 +1,52 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-
-const wasteComposition = [
-  { name: "Recyclables", value: 45, color: "#34d399" },
-  { name: "Organic", value: 30, color: "#60a5fa" },
-  { name: "Paper", value: 15, color: "#fbbf24" },
-  { name: "General", value: 10, color: "#a78bfa" },
-]
-
-const keyMetrics = [
-  { label: "Total Bins", value: "127" },
-  { label: "Collection Rate", value: "94%" },
-  { label: "Avg. Fill Time", value: "18" },
-]
+import { supabase } from "@/lib/supabase"
 
 export function DashboardPreview() {
   const [activeTab, setActiveTab] = useState("live")
+  const [wasteComposition, setWasteComposition] = useState([
+    { name: "Plastic", value: 0, color: "#34d399" },
+    { name: "Metal", value: 0, color: "#60a5fa" },
+    { name: "Paper", value: 0, color: "#fbbf24" },
+    { name: "Mixed", value: 0, color: "#a78bfa" },
+  ])
+  const [keyMetrics, setKeyMetrics] = useState([
+    { label: "Total Bins", value: "127" },
+    { label: "Collection Rate", value: "94%" },
+    { label: "Avg. Fill Time", value: "18h" },
+  ])
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { data, error } = await supabase.rpc('get_public_impact_stats')
+      if (!error && data) {
+        const total = (data.plastic || 0) + (data.metal || 0) + (data.paper || 0) + (data.mixed || 0)
+        if (total > 0) {
+          setWasteComposition([
+            { name: "Plastic", value: Math.round((data.plastic / total) * 100), color: "#34d399" },
+            { name: "Metal", value: Math.round((data.metal / total) * 100), color: "#60a5fa" },
+            { name: "Paper", value: Math.round((data.paper / total) * 100), color: "#fbbf24" },
+            { name: "Mixed", value: Math.round((data.mixed / total) * 100), color: "#a78bfa" },
+          ])
+        }
+
+        // Update bins if available
+        if (data.active_bins) {
+          setKeyMetrics(prev => [
+            { ...prev[0], value: data.active_bins.toString() },
+            prev[1],
+            prev[2]
+          ])
+        }
+      }
+    }
+    fetchStats()
+  }, [])
 
   return (
     <section id="dashboard" className="py-20 bg-secondary/30">
