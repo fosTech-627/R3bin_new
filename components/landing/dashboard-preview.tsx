@@ -71,13 +71,6 @@ export function DashboardPreview() {
                   <span className="text-sm text-muted-foreground">Live Dashboard Preview</span>
                 </span>
               </div>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-secondary">
-                  <TabsTrigger value="live">Live</TabsTrigger>
-                  <TabsTrigger value="daily">Daily</TabsTrigger>
-                  <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                </TabsList>
-              </Tabs>
             </div>
           </CardHeader>
 
