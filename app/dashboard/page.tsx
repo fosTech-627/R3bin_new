@@ -157,6 +157,9 @@ export default function DashboardPage() {
 
       if (logsError) console.error('Error fetching logs:', logsError)
       else if (rawLogs) {
+        console.log('DEBUG: Raw Logs Count:', rawLogs.length)
+        if (rawLogs.length > 0) console.log('DEBUG: First Log Date:', rawLogs[0].updated_at)
+
         // A. Aggregate for Trends (Group by Date)
         const dailyStats: Record<string, CollectionTrend> = {}
         const todayStr = new Date().toISOString().split('T')[0]
