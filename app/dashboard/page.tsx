@@ -716,10 +716,9 @@ export default function DashboardPage() {
         setActiveBins(`${activeCount}/${registryData.length}`)
       }
 
-      // 5. Alerts (from r3bin_records - Fill Levels)
-      console.log('DEBUG: Fetching r3bin_records...')
+      console.log('DEBUG: Fetching r3bin_records with v2...')
       const { data: binRecord, error: recordError } = await supabase
-        .rpc('get_latest_bin_status')
+        .rpc('get_latest_bin_status_v2')
 
       if (recordError) {
         console.error('Error fetching r3bin_records:', JSON.stringify(recordError, null, 2))
