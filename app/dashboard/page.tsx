@@ -734,10 +734,10 @@ export default function DashboardPage() {
         const b4 = binRecord.bin4_mixed
         const binId = binRecord.bin_id || 'Unknown'
 
-        if (b1) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Plastic Bin Full (Bin ${binId})`, time: 'Just now' })
-        if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Paper Bin Full (Bin ${binId})`, time: 'Just now' })
-        if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Metal Bin Full (Bin ${binId})`, time: 'Just now' })
-        if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Mixed Waste Bin Full (Bin ${binId})`, time: 'Just now' })
+        if (b1) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Plastic Bin Full (${binId})`, time: 'Just now' })
+        if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Paper Bin Full (${binId})`, time: 'Just now' })
+        if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Metal Bin Full (${binId})`, time: 'Just now' })
+        if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Mixed Waste Bin Full (${binId})`, time: 'Just now' })
 
         setAlerts(generatedAlerts)
       } else {
