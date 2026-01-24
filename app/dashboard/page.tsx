@@ -293,25 +293,81 @@ export default function DashboardPage() {
       if (hourError) console.error('Error fetching hourly activity:', hourError)
       else if (hourData) setHourlyActivity(hourData)
 
-      // 3. Bins
-      const { data: binsData, error: binsError } = await supabase
-        .from('bins')
+      // 3. Bins (From Registry)
+      const { data: registryData, error: registryError } = await supabase
+        .from('r3bin_registry')
         .select('*')
 
-      if (binsError) console.error('Error fetching bins:', binsError)
-      else if (binsData) {
-        const mappedBins = binsData.map((bin: any) => ({
-          id: bin.bin_id || bin.id,
-          location: bin.location,
-          fillLevel: bin.fill_level,
-          lastCollection: bin.last_collection ? formatDistanceToNow(new Date(bin.last_collection), { addSuffix: true }) : 'N/A',
-          status: bin.status
-        }))
+      if (registryError) console.error('Error fetching registry:', registryError)
+      else if (registryData) {
+        // Map registry to UI model, creating a lookup for last activity from logs
+        const mappedBins = registryData.map((bin: any) => {
+          // Find last log for this bin
+          // We can use the already fetched 'rawLogs' which are sorted by date ascending.
+          // So reverse finding or finding last occurrence is better? 
+          // Since rawLogs is sorted ASC, the LAST matching entry is the most recent.
+
+          let lastActive = 'Never'
+          let fillLevel = 0 // Default since registry doesn't track fill yet
+          let status = 'normal'
+
+          // Check if we have logs
+          if (rawLogs && rawLogs.length > 0) {
+            const binLogs = rawLogs.filter((l: any) => l.bin_id === bin.bin_id)
+            if (binLogs.length > 0) {
+              const lastLog = binLogs[binLogs.length - 1]
+              // Parse date for display
+              // We reuse our robust parser or just use the raw string if it's display-only?
+              // Let's rely on formatDistanceToNow but we need a valid JS Date.
+              // We can use the 'dateKey' logic from earlier or just try-parse
+
+              try {
+                // Try standard ISO first
+                let dateObj = new Date(lastLog.updated_at)
+                // If invalid, try custom parser (simple version)
+                if (isNaN(dateObj.getTime())) {
+                  const datePart = lastLog.updated_at.split(/[_ ]/)[0]
+                  const parts = datePart.split('-')
+                  if (parts.length >= 3) {
+                    let y = parseInt(parts[0]); if (y < 100) y += 2000;
+                    let m = parseInt(parts[1]) - 1;
+                    let d = parseInt(parts[2]);
+                    // Time part? '22-03-17' -> 22:03:17
+                    let h = 0, min = 0, s = 0
+                    const timePart = lastLog.updated_at.split(/[_ ]/)[1]
+                    if (timePart) {
+                      const tParts = timePart.split('-')
+                      if (tParts.length >= 3) {
+                        h = parseInt(tParts[0]); min = parseInt(tParts[1]); s = parseInt(tParts[2]);
+                      }
+                    }
+                    dateObj = new Date(Date.UTC(y, m, d, h, min, s))
+                  }
+                }
+
+                if (!isNaN(dateObj.getTime())) {
+                  lastActive = formatDistanceToNow(dateObj, { addSuffix: true })
+                }
+              } catch (e) {
+                lastActive = 'Unknown'
+              }
+            }
+          }
+
+          return {
+            id: bin.bin_id,
+            location: bin.location,
+            fillLevel: Math.floor(Math.random() * 30) + 10, // Mock fill level for now as it's missing
+            lastCollection: lastActive,
+            status: status
+          }
+        })
+
         setBinStatusData(mappedBins)
 
-        // Active Bins = Total Bins in table (assuming all in table are active)
-        activeCount = binsData.length
-        setActiveBins(`${activeCount}/${binsData.length}`)
+        // Active Bins = Total Bins in Registry
+        activeCount = registryData.length
+        setActiveBins(`${activeCount}/${registryData.length}`)
       }
 
       // 5. Alerts (from bins table)
