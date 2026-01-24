@@ -564,6 +564,19 @@ export default function DashboardPage() {
                       <span className="text-sm text-muted-foreground">Mixed Waste</span>
                     </div>
                   </div>
+                  <div className="mt-4 p-4 bg-black/80 rounded-md border border-red-500/50 text-xs font-mono text-green-400 overflow-auto max-h-60">
+                    <p className="mb-2 text-white font-bold border-b border-white/20 pb-1">DEBUG DIAGNOSTICS (Temporary)</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-white/70">Raw Trends Data ({collectionTrends.length} items):</p>
+                        <pre>{JSON.stringify(collectionTrends, null, 2)}</pre>
+                      </div>
+                      <div>
+                        <p className="text-white/70">Date Parsing Check:</p>
+                        <p>Current Time: {new Date().toISOString()}</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
