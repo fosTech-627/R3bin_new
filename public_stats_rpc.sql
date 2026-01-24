@@ -2,7 +2,7 @@
 -- Returns a breakdown of item counts by waste type (Plastic, Metal, Paper, Mixed)
 -- Runs as SECURITY DEFINER to bypass RLS (since users are not logged in on the landing page)
 
-CREATE OR REPLACE FUNCTION get_public_impact_stats()
+CREATE OR REPLACE FUNCTION get_public_impact_stats(time_filter text DEFAULT 'live')
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -13,26 +13,38 @@ DECLARE
   total_paper bigint;
   total_mixed bigint;
   total_bins bigint;
+  start_date timestamp with time zone;
 BEGIN
+  -- Determine Start Date based on filter
+  IF time_filter = 'daily' THEN
+    start_date := now() - interval '24 hours';
+  ELSIF time_filter = 'weekly' THEN
+    start_date := now() - interval '7 days';
+  ELSE
+    -- 'live' or default: All time (from beginning of epoch effectively)
+    start_date := '2000-01-01'::timestamp; 
+  END IF;
+
   -- Count Plastic
   SELECT COUNT(*) INTO total_plastic FROM r3bin_waste_logs 
-  WHERE waste_type ILIKE '%plastic%';
+  WHERE waste_type ILIKE '%plastic%' AND created_at >= start_date;
 
   -- Count Metal
   SELECT COUNT(*) INTO total_metal FROM r3bin_waste_logs 
-  WHERE waste_type ILIKE '%metal%';
+  WHERE waste_type ILIKE '%metal%' AND created_at >= start_date;
 
   -- Count Paper
   SELECT COUNT(*) INTO total_paper FROM r3bin_waste_logs 
-  WHERE waste_type ILIKE '%paper%';
+  WHERE waste_type ILIKE '%paper%' AND created_at >= start_date;
 
   -- Count Mixed/General (everything else)
   SELECT COUNT(*) INTO total_mixed FROM r3bin_waste_logs 
   WHERE waste_type NOT ILIKE '%plastic%' 
     AND waste_type NOT ILIKE '%metal%' 
-    AND waste_type NOT ILIKE '%paper%';
+    AND waste_type NOT ILIKE '%paper%'
+    AND created_at >= start_date;
 
-  -- Count Active Bins
+  -- Count Active Bins (Always All Time / Current Status)
   SELECT COUNT(*) INTO total_bins FROM r3bin_registry;
 
   -- Return JSON Object
@@ -41,7 +53,8 @@ BEGIN
     'metal', total_metal,
     'paper', total_paper,
     'mixed', total_mixed,
-    'active_bins', total_bins
+    'active_bins', total_bins,
+    'debug_start', start_date
   );
 END;
 $$;
