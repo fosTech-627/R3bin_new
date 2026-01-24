@@ -1136,8 +1136,10 @@ export default function DashboardPage() {
                       <AreaChart data={hourlyActivity}>
                         <defs>
                           <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#34d399" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9} />   {/* Red (Hot) */}
+                            <stop offset="30%" stopColor="#eab308" stopOpacity={0.8} />  {/* Yellow */}
+                            <stop offset="60%" stopColor="#22c55e" stopOpacity={0.7} />  {/* Green */}
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2} />  {/* Blue (Cold) */}
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
