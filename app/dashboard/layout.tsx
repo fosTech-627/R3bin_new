@@ -25,6 +25,20 @@ export default function DashboardLayout({
                     if (window.location.hash) {
                         window.history.replaceState(null, '', window.location.pathname)
                     }
+
+                    // Check if user has access to any bins
+                    // We assume if they have 0 associated bins, they are new/unlinked.
+                    const { count, error } = await supabase
+                        .from('bin_access')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', session.user.id)
+
+                    if (!error) {
+                        if (count === 0) {
+                            console.log('User has no bins, redirecting to onboarding')
+                            router.push("/onboarding")
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Auth check failed", error)
