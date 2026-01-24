@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [timeRange])
 
   const fetchData = async () => {
     console.log('DEBUG: Starting fetchData...')
@@ -243,8 +243,24 @@ export default function DashboardPage() {
           ]
         }
 
-        console.log('Final Trends Data:', trendsData)
-        setCollectionTrends(trendsData)
+        // Filter trends based on selected ID (timeRange)
+        const now = new Date()
+        let cutoffDate: Date | null = new Date()
+
+        switch (timeRange) {
+          case '24h': cutoffDate.setDate(now.getDate() - 1); break;
+          case '7d': cutoffDate.setDate(now.getDate() - 7); break;
+          case '30d': cutoffDate.setDate(now.getDate() - 30); break;
+          case '90d': cutoffDate.setDate(now.getDate() - 90); break;
+          case 'all': cutoffDate = null; break; // No cutoff
+          default: cutoffDate.setDate(now.getDate() - 7);
+        }
+
+        const filteredTrends = cutoffDate
+          ? trendsData.filter(d => new Date(d.date) >= cutoffDate)
+          : trendsData // Show all if no cutoff
+
+        setCollectionTrends(filteredTrends)
 
         // B. Total Waste Today
         const todayStats = dailyStats[todayStr]
@@ -443,6 +459,7 @@ export default function DashboardPage() {
                     <SelectItem value="7d">Last 7 days</SelectItem>
                     <SelectItem value="30d">Last 30 days</SelectItem>
                     <SelectItem value="90d">Last 90 days</SelectItem>
+                    <SelectItem value="all">All Time</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button variant="outline" size="icon" className="border-border bg-transparent" onClick={fetchData}>
@@ -575,19 +592,7 @@ export default function DashboardPage() {
                       <span className="text-sm text-muted-foreground">Mixed Waste</span>
                     </div>
                   </div>
-                  <div className="mt-4 p-4 bg-black/80 rounded-md border border-red-500/50 text-xs font-mono text-green-400 overflow-auto max-h-60">
-                    <p className="mb-2 text-white font-bold border-b border-white/20 pb-1">DEBUG DIAGNOSTICS (Temporary)</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-white/70">Raw Trends Data ({collectionTrends.length} items):</p>
-                        <pre>{JSON.stringify(collectionTrends, null, 2)}</pre>
-                      </div>
-                      <div>
-                        <p className="text-white/70">Date Parsing Check:</p>
-                        <p>Current Time: {new Date().toISOString()}</p>
-                      </div>
-                    </div>
-                  </div>
+
                 </CardContent>
               </Card>
 
