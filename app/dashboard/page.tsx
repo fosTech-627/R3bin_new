@@ -1129,10 +1129,12 @@ export default function DashboardPage() {
                         let borderColor = "#27272a"
 
                         if (val > 0) {
-                          // 120 -> 0 hue
-                          const hue = Math.max(0, 120 - (intensity * 120))
-                          bgColor = `hsl(${hue}, 85%, 50%)`
-                          borderColor = `hsl(${hue}, 90%, 40%)`
+                          // Blue -> Fostride Green Gradient
+                          // Low Activity (0): Blue (Hue 210)
+                          // High Activity (1): Fostride Green (Hue ~150)
+                          const hue = 210 - (intensity * 60)
+                          bgColor = `hsl(${hue}, 85%, 45%)`
+                          borderColor = `hsl(${hue}, 90%, 35%)`
                         }
 
                         return (
