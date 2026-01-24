@@ -9,9 +9,10 @@ DECLARE
   latest_record record;
 BEGIN
   -- Select the single latest record
+  -- CHANGED: Use created_at instead of id, as id column is missing
   SELECT * INTO latest_record
   FROM public.r3bin_records
-  ORDER BY id DESC
+  ORDER BY created_at DESC
   LIMIT 1;
 
   -- Return as JSON, or null if no record found
