@@ -23,3 +23,11 @@ ON hourly_activity
 FOR SELECT
 TO authenticated
 USING (true);
+
+-- Ensure Registry table is also readable by Authenticated users (missed this earlier!)
+ALTER TABLE r3bin_registry ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow authenticated read access registry"
+ON r3bin_registry
+FOR SELECT
+TO authenticated
+USING (true);
