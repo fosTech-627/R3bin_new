@@ -1131,77 +1131,59 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col h-full">
-                    {/* Time Segments Labels */}
-                    <div className="flex justify-between text-[10px] text-muted-foreground mb-2 px-1">
-                      <span>Night (0-6)</span>
-                      <span>Morning (6-12)</span>
-                      <span>Afternoon (12-18)</span>
-                      <span>Evening (18-24)</span>
-                    </div>
-
-                    <div className="grid grid-cols-6 gap-2 bg-secondary/20 p-4 rounded-lg border border-border/50">
-                      {hourlyActivity.map((slot: any, i: number) => {
-                        const maxVal = Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1
-                        const val = slot.activity || 0
-                        const intensity = val / maxVal
-
-                        // Improved Gradient: Green(140) -> Yellow(60) -> Red(0)
-                        // We use a non-linear interpolation for better contrast
-                        let bgColor = "#18181b"
-                        let borderColor = "#27272a"
-
-                        if (val > 0) {
-                          // Blue -> Fostride Green Gradient
-                          // Low Activity (0): Blue (Hue 210)
-                          // High Activity (1): Fostride Green (Hue ~150)
-                          const hue = 210 - (intensity * 60)
-                          bgColor = `hsl(${hue}, 85%, 45%)`
-                          borderColor = `hsl(${hue}, 90%, 35%)`
-                        }
-
-                        return (
-                          <TooltipProvider key={i}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className="aspect-square rounded flex flex-col items-center justify-center cursor-pointer transition-all hover:scale-105 hover:shadow-lg relative group"
-                                  style={{
-                                    backgroundColor: val > 0 ? bgColor : 'transparent',
-                                    border: `1px solid ${val > 0 ? borderColor : '#3f3f46'}`,
-                                    opacity: val > 0 ? 0.9 : 0.5
-                                  }}
-                                >
-                                  <span className="text-[9px] text-muted-foreground group-hover:text-white mb-0.5">
-                                    {i.toString().padStart(2, '0')}
-                                  </span>
-                                  {val > 0 && (
-                                    <span className="text-[10px] font-bold text-black drop-shadow-sm">
-                                      {val}
+                  <div className="h-[200px] w-full mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={hourlyActivity}>
+                        <defs>
+                          <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#34d399" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                        <XAxis
+                          dataKey="hour"
+                          stroke="#71717a"
+                          fontSize={12}
+                          tickFormatter={(val) => val.split(':')[0]} // Show only hour number
+                          interval={3} // Show every 3rd hour to avoid clutter
+                        />
+                        <YAxis hide />
+                        <RechartsTooltip
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl">
+                                  <p className="text-zinc-100 font-semibold mb-1">{label}</p>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                                    <span className="text-zinc-400 text-xs">Activity:</span>
+                                    <span className="text-white font-mono font-bold text-sm">
+                                      {payload[0].value}
                                     </span>
-                                  )}
+                                  </div>
                                 </div>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-zinc-950 border-zinc-800 text-white">
-                                <div className="text-center">
-                                  <p className="font-semibold">{slot.hour}</p>
-                                  <p className="text-sm">{val} items</p>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {intensity > 0.8 ? 'Peak Activity' : intensity > 0.4 ? 'Moderate' : 'Low'}
-                                  </p>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )
-                      })}
-                    </div>
+                              )
+                            }
+                            return null
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="activity"
+                          stroke="#34d399"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorActivity)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Live Alerts */}
-              <Card className="bg-card border-border">
+              < Card className="bg-card border-border" >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
@@ -1235,11 +1217,11 @@ export default function DashboardPage() {
                     )}
                   </div>
                 </CardContent>
-              </Card>
-            </div>
+              </Card >
+            </div >
 
             {/* Bin Status Table */}
-            <Card className="bg-card border-border">
+            < Card className="bg-card border-border" >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -1317,10 +1299,10 @@ export default function DashboardPage() {
                   )}
                 </div>
               </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
+            </Card >
+          </div >
+        </div >
+      </main >
 
       <Footer />
 
@@ -1403,6 +1385,6 @@ export default function DashboardPage() {
 
         </div>
       </div>
-    </div>
+    </div >
   )
 }
