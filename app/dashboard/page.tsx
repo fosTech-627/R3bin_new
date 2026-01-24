@@ -574,14 +574,43 @@ export default function DashboardPage() {
 
       }
 
-      // 2. Hourly Activity
-      const { data: hourData, error: hourError } = await supabase
-        .from('hourly_activity')
-        .select('*')
-        .order('hour', { ascending: true })
+      // 2. Hourly Activity (Calculated from rawLogs)
+      if (rawLogs) {
+        const hourCounts = new Array(24).fill(0)
 
-      if (hourError) console.error('Error fetching hourly activity:', hourError)
-      else if (hourData) setHourlyActivity(hourData)
+        rawLogs.forEach((log: any) => {
+          if (!log.updated_at) return
+          try {
+            // Parse date similar to above
+            const datePart = log.updated_at.split('T')[0] // or split space
+            let h = 0
+
+            if (log.updated_at.includes('T')) {
+              const dateObj = new Date(log.updated_at)
+              // Use local hour or UTC? Use local for user relevance if possible, or UTC if that's stored.
+              // Assuming updated_at is generic ISO, let's use getHours() (local)
+              if (!isNaN(dateObj.getTime())) h = dateObj.getHours()
+            } else {
+              // Custom format YY-MM-DD_HH-mm-ss
+              const timePart = log.updated_at.split(/[_ ]/)[1]
+              if (timePart) {
+                h = parseInt(timePart.split('-')[0])
+              }
+            }
+            if (h >= 0 && h < 24) hourCounts[h]++
+          } catch (e) {
+            // ignore parse error
+          }
+        })
+
+        const computedHourly = hourCounts.map((count, i) => ({
+          hour: `${i.toString().padStart(2, '0')}:00`,
+          activity: count,
+          raw: count // keep for intensity calc
+        }))
+
+        setHourlyActivity(computedHourly)
+      }
 
       // 3. Bins (From Registry)
       const { data: registryData, error: registryError } = await supabase
@@ -1052,22 +1081,66 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={hourlyActivity}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                        <XAxis dataKey="hour" stroke="#71717a" fontSize={12} />
-                        <YAxis stroke="#71717a" fontSize={12} />
-                        <RechartsTooltip
-                          contentStyle={{
-                            backgroundColor: '#18181b',
-                            border: '1px solid #27272a',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Bar dataKey="activity" fill="#34d399" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="flex flex-col h-full justify-center">
+                    <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-12 gap-2">
+                      {hourlyActivity.map((slot: any, i: number) => {
+                        // Heatmap Logic
+                        // Find Max for relative intensity
+                        const maxVal = Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1
+                        const val = slot.activity || 0
+                        const intensity = val / maxVal // 0 to 1
+
+                        // Color Interpolation (Green -> Yellow -> Red)
+                        // Green: hue 140, Red: hue 0
+                        // We want 0-0.5 to be Green->Yellow, 0.5-1.0 to be Yellow->Red?
+                        // Simple: 120 (Green) -> 0 (Red)
+                        // hue = 120 * (1 - intensity)
+                        // High intensity = Red (0). Low = Green (120).
+                        // But 0 items should be gray/faint.
+
+                        let bgColor = "#27272a" // default gray
+                        let opacity = 0.3
+
+                        if (val > 0) {
+                          const hue = Math.max(0, 120 - (intensity * 120))
+                          bgColor = `hsl(${hue}, 80%, 50%)`
+                          opacity = 0.5 + (intensity * 0.5) // Minimum 0.5 opacity for visibility
+                        }
+
+                        return (
+                          <TooltipProvider key={i}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className="aspect-square rounded-md flex items-center justify-center text-xs cursor-pointer transition-all hover:scale-110 hover:brightness-110 hover:z-10 relative"
+                                  style={{
+                                    backgroundColor: bgColor,
+                                    opacity: val > 0 ? 1 : 0.3,
+                                    border: val > 0 ? `1px solid ${bgColor}` : '1px solid #3f3f46'
+                                  }}
+                                >
+                                  <span className={`text-[10px] ${val > 0 ? 'text-black font-bold' : 'text-muted-foreground'}`}>
+                                    {i}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <div className="text-center">
+                                  <p className="font-bold text-sm">{slot.hour}</p>
+                                  <p className="text-xs text-muted-foreground">{val} items collected</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )
+                      })}
+                    </div>
+                    {/* Legend / X-Axis labels helpers if needed, but grid numbers suffice */}
+                    <div className="mt-4 flex justify-between text-xs text-muted-foreground px-1">
+                      <span>00:00</span>
+                      <span>12:00</span>
+                      <span>23:00</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
