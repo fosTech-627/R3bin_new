@@ -190,7 +190,9 @@ export default function DashboardPage() {
             }
           }
 
-          const type = (log.waste_type || 'mixed').toLowerCase()
+          // Clean waste_type: remove quotes if present, trim whitespace
+          const rawType = log.waste_type ? String(log.waste_type).replace(/['"]/g, '').trim() : 'mixed'
+          const type = rawType.toLowerCase()
 
           if (!dailyStats[date]) {
             dailyStats[date] = { date, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 }
@@ -203,9 +205,24 @@ export default function DashboardPage() {
         })
 
         // Convert to array and sort
-        const trendsData = Object.values(dailyStats).sort((a, b) =>
+        let trendsData = Object.values(dailyStats).sort((a, b) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
         )
+
+        // Fix for "Empty Chart" when only 1 day of data exists
+        // AreaChart needs at least 2 points to show width. We add a zero-point for the previous day.
+        if (trendsData.length === 1) {
+          const singleDate = new Date(trendsData[0].date)
+          const prevDate = new Date(singleDate)
+          prevDate.setDate(singleDate.getDate() - 1)
+          const prevDateStr = prevDate.toISOString().split('T')[0]
+
+          trendsData = [
+            { date: prevDateStr, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 },
+            ...trendsData
+          ]
+        }
+
         setCollectionTrends(trendsData)
 
         // B. Total Waste Today
