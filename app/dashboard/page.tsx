@@ -717,6 +717,7 @@ export default function DashboardPage() {
       }
 
       // 5. Alerts (from r3bin_records - Fill Levels)
+      console.log('DEBUG: Fetching r3bin_records...')
       const { data: binRecord, error: recordError } = await supabase
         .from('r3bin_records')
         .select('*')
@@ -726,45 +727,29 @@ export default function DashboardPage() {
 
       if (recordError) {
         console.error('Error fetching r3bin_records:', recordError)
+        setAlerts([]) // Reset on error
       } else if (binRecord) {
-        const newAlerts: UIAlert[] = []
+        console.log('DEBUG: Found binRecord:', binRecord)
+        const generatedAlerts: UIAlert[] = []
         let idCounter = 1
 
         // Check each bin's fill status (True = Full)
-        if (binRecord.bin1_plastics) {
-          newAlerts.push({
-            id: idCounter++,
-            type: 'critical',
-            message: 'Plastic Bin Full',
-            time: 'Just now'
-          })
-        }
-        if (binRecord.bin2_paper) {
-          newAlerts.push({
-            id: idCounter++,
-            type: 'critical',
-            message: 'Paper Bin Full',
-            time: 'Just now'
-          })
-        }
-        if (binRecord.bin3_metal) {
-          newAlerts.push({
-            id: idCounter++,
-            type: 'critical',
-            message: 'Metal Bin Full',
-            time: 'Just now'
-          })
-        }
-        if (binRecord.bin4_mixed) {
-          newAlerts.push({
-            id: idCounter++,
-            type: 'critical',
-            message: 'Mixed Waste Bin Full',
-            time: 'Just now'
-          })
-        }
+        // Access safely in case of casing mismatch
+        const b1 = binRecord.bin1_plastics
+        const b2 = binRecord.bin2_paper
+        const b3 = binRecord.bin3_metal
+        const b4 = binRecord.bin4_mixed
 
-        setAlerts(newAlerts)
+        if (b1) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Plastic Bin Full', time: 'Just now' })
+        if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Paper Bin Full', time: 'Just now' })
+        if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Metal Bin Full', time: 'Just now' })
+        if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Mixed Waste Bin Full', time: 'Just now' })
+
+        console.log('DEBUG: Generated Alerts:', generatedAlerts)
+        setAlerts(generatedAlerts)
+      } else {
+        console.log('DEBUG: No binRecord found in r3bin_records')
+        setAlerts([])
       }
 
     } catch (err: any) {
