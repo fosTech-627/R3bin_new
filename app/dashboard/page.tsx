@@ -169,14 +169,23 @@ export default function DashboardPage() {
               // Standard ISO format
               date = log.updated_at.split('T')[0]
             } else {
-              // Custom format: 07-12-20_595240 (Assuming MM-DD-HH_...)
-              // We'll assume current year for now if year is missing
-              const parts = log.updated_at.split('-')
-              if (parts.length >= 2) {
-                const month = parts[0]
-                const day = parts[1]
+              // Custom format: 26-01-17_16-15-29 (YY-MM-DD_...)
+              const parts = log.updated_at.split('_')[0].split('-') // Get date part "26-01-17"
+
+              if (parts.length >= 3) {
+                // Assuming YY-MM-DD based on "26-01-17" (2026 Jan 17)
+                let year = parseInt(parts[0])
+                let month = parts[1]
+                let day = parts[2]
+
+                // Adjust 2-digit year to 4-digit (Assuming 20xx)
+                if (year < 100) year += 2000
+
+                date = `${year}-${month}-${day}` // ISO YYYY-MM-DD
+              } else if (parts.length === 2) {
+                // Fallback for older "MM-DD" format if seen
                 const currentYear = new Date().getFullYear()
-                date = `${currentYear}-${month}-${day}` // Format: YYYY-MM-DD
+                date = `${currentYear}-${parts[0]}-${parts[1]}`
               }
             }
           }
