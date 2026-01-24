@@ -19,7 +19,7 @@ export function ImpactStats() {
 
   useEffect(() => {
     async function fetchStats() {
-      const { data, error } = await supabase.rpc('get_public_impact_stats')
+      const { data, error } = await supabase.rpc('get_public_impact_stats', { time_filter: 'live' })
 
       if (!error && data) {
         setDeploymentCount(data.active_bins || 127)
