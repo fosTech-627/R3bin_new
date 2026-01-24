@@ -163,7 +163,7 @@ export default function DashboardPage() {
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.width
     const pageHeight = doc.internal.pageSize.height
-    const primaryColor = "#2e7d32"
+    const primaryColor = "#1b7f4b"
 
     // --- Background Letterhead ---
     try {
@@ -183,76 +183,99 @@ export default function DashboardPage() {
     doc.setFont("helvetica", "bold")
     doc.setTextColor(primaryColor)
     doc.setFontSize(22)
-    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 45, { align: "right" }) // Moved down for letterhead
-
-    // Tagline removed to avoid clash
-
-    // --- Installation Details ---
+    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 45, { align: "right" })
 
     // --- Installation Details ---
     let yPos = 65
-    doc.setFontSize(14)
-    doc.setTextColor(primaryColor)
-    doc.setDrawColor(primaryColor)
-    doc.setLineWidth(3)
-    doc.line(14, yPos - 5, 14, yPos + 5)
-    doc.text("Installation Details", 20, yPos)
 
-    yPos += 15
+    // Section Header Style Helper
+    const drawSectionHeader = (title: string, y: number) => {
+      doc.setFontSize(14)
+      doc.setTextColor(primaryColor)
+      doc.text(title, 20, y)
+      doc.setDrawColor(224, 224, 224)
+      doc.setLineWidth(1)
+      doc.line(20, y + 2, pageWidth - 20, y + 2)
+      return y + 15
+    }
 
-    // Info Grid
-    doc.setLineWidth(0.1)
-    doc.setDrawColor(200)
-    doc.setFillColor(249, 250, 251) // #f9fafb
+    yPos = drawSectionHeader("Installation Details", yPos)
 
-    const boxWidth = (pageWidth - 40) / 2
-    const boxHeight = 35
+    // 2x2 Grid using "Info Cards" style
+    const cardWidth = (pageWidth - 44) / 2
+    const cardHeight = 12
+    const cardGap = 4
 
-    // Box 1
-    doc.roundedRect(14, yPos, boxWidth, boxHeight, 2, 2, "FD")
-    doc.setFontSize(9)
-    doc.setTextColor(100)
-    doc.text("Bin Location", 20, yPos + 12)
-    doc.setFontSize(11)
-    doc.setTextColor(0)
-    doc.text(selectedLocation === 'all' ? 'All Locations' : selectedLocation, 20, yPos + 25)
+    doc.setFontSize(10)
 
-    // Box 2
-    doc.roundedRect(14 + boxWidth + 12, yPos, boxWidth, boxHeight, 2, 2, "FD")
-    doc.setFontSize(9)
-    doc.setTextColor(100)
-    doc.text("Active Bins", 20 + boxWidth + 12, yPos + 12)
-    doc.setFontSize(11)
-    doc.setTextColor(0)
-    doc.text(activeBins, 20 + boxWidth + 12, yPos + 25)
+    const drawInfoCard = (label: string, value: string, x: number, y: number) => {
+      // Card bg
+      doc.setFillColor(250, 250, 250) // #fafafa
+      doc.setDrawColor(221, 221, 221) // #ddd
+      doc.setLineWidth(0.1)
+      doc.roundedRect(x, y, cardWidth, cardHeight, 1, 1, "FD")
 
-    yPos += 50
+      // Text
+      doc.setTextColor(50)
+      doc.setFont("helvetica", "bold")
+      doc.text(label, x + 3, y + 8)
 
-    // --- Summary ---
-    doc.setFontSize(14)
-    doc.setTextColor(primaryColor)
-    doc.setLineWidth(3)
-    doc.line(14, yPos - 5, 14, yPos + 5)
-    doc.text("Waste Collection Summary", 20, yPos)
+      doc.setFont("helvetica", "normal")
+      doc.setTextColor(0)
+      const labelWidth = doc.getTextWidth(label)
+      doc.text(value, x + 3 + labelWidth + 2, y + 8)
+    }
 
-    yPos += 15
+    drawInfoCard("Company:", "Somaiya Vidyavihar University", 20, yPos)
+    drawInfoCard("Location:", selectedLocation === 'all' ? 'Engineering Building' : selectedLocation, 20 + cardWidth + cardGap, yPos)
 
-    // Highlight Box
+    yPos += cardHeight + cardGap
+
+    drawInfoCard("Bin ID:", "R3BIN-SVU-001", 20, yPos)
+    drawInfoCard("Waste Types:", "Plastic, Metal, Paper, Mixed", 20 + cardWidth + cardGap, yPos)
+
+    yPos += 25
+
+    // --- Collection Summary ---
+    yPos = drawSectionHeader("Collection Summary", yPos)
+
+    // Green Highlight Box style
+    const summaryBoxHeight = 25
     doc.setFillColor(232, 245, 233) // #e8f5e9
-    doc.setDrawColor(primaryColor)
-    doc.setLineWidth(0.1)
-    doc.rect(14, yPos, pageWidth - 28, 40, "F")
-    doc.setLineWidth(2)
-    doc.line(14, yPos, 14, yPos + 40)
+    doc.rect(20, yPos, pageWidth - 40, summaryBoxHeight, "F")
 
-    // Calculate Total for the *Selected Period* (not just Today)
+    doc.setFillColor(primaryColor)
+    doc.rect(20, yPos, 2, summaryBoxHeight, "F") // Left border
+
+    // Calculate Content
     const periodTotal = collectionTrends.reduce((acc, row) =>
       acc + row.plastic + row.metal + row.paper + row.mixed_waste, 0)
 
-    doc.setFontSize(10)
+    // Calculate Most Collected
+    let sums = { Metal: 0, Plastic: 0, Paper: 0, Mixed: 0 }
+    collectionTrends.forEach(d => {
+      sums.Metal += d.metal
+      sums.Plastic += d.plastic
+      sums.Paper += d.paper
+      sums.Mixed += d.mixed_waste
+    })
+    const mostCollected = Object.entries(sums).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+
+    doc.setFont("helvetica", "normal")
     doc.setTextColor(0)
-    doc.text(`Total Waste Collected: ${periodTotal} items`, 25, yPos + 15)
-    doc.text(`Collection Period: ${timeRange === 'all' ? 'All Time' : `Last ${timeRange}`}`, 25, yPos + 30)
+    doc.setFontSize(10)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Most Collected Waste:", 26, yPos + 8)
+    doc.setFont("helvetica", "normal")
+    doc.text(mostCollected, 70, yPos + 8)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("Reporting Period:", 26, yPos + 18)
+    doc.setFont("helvetica", "normal")
+    doc.text(timeRange === 'all' ? 'All Time' : `Last ${timeRange}`, 70, yPos + 18)
+
+    doc.text(`(Total Items: ${periodTotal})`, 120, yPos + 18)
 
     yPos += 60
 
