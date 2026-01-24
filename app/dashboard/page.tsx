@@ -146,55 +146,149 @@ export default function DashboardPage() {
 
   const handleExport = () => {
     const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.width
+    const primaryColor = "#2e7d32"
 
-    // Title
-    doc.setFontSize(20)
-    doc.text("Waste Intelligence Report", 14, 22)
+    // --- Header ---
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(primaryColor)
+    doc.setFontSize(22)
 
-    doc.setFontSize(11)
+    // Fallback Text Logo or Image
+    doc.text("Fostride", 14, 25)
+
+    // Title (Top Right)
+    doc.setFontSize(26)
+    doc.setTextColor(primaryColor)
+    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 25, { align: "right" })
+
+    doc.setFontSize(10)
     doc.setTextColor(100)
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30)
+    doc.text("Smart Segregation • Data-Driven Sustainability", pageWidth - 14, 32, { align: "right" })
 
-    // Summary Stats
+    // Green Line
+    doc.setDrawColor(primaryColor)
+    doc.setLineWidth(1.5)
+    doc.line(14, 40, pageWidth - 14, 40)
+
+    // --- Installation Details ---
+    let yPos = 60
     doc.setFontSize(14)
+    doc.setTextColor(primaryColor)
+    doc.setDrawColor(primaryColor)
+    doc.setLineWidth(3)
+    doc.line(14, yPos - 5, 14, yPos + 5)
+    doc.text("Installation Details", 20, yPos)
+
+    yPos += 15
+
+    // Info Grid
+    doc.setLineWidth(0.1)
+    doc.setDrawColor(200)
+    doc.setFillColor(249, 250, 251) // #f9fafb
+
+    const boxWidth = (pageWidth - 40) / 2
+    const boxHeight = 35
+
+    // Box 1
+    doc.roundedRect(14, yPos, boxWidth, boxHeight, 2, 2, "FD")
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Bin Location", 20, yPos + 12)
+    doc.setFontSize(11)
     doc.setTextColor(0)
-    doc.text("Dashboard Summary", 14, 45)
+    doc.text(selectedLocation === 'all' ? 'All Locations' : selectedLocation, 20, yPos + 25)
 
-    const summaryData = [
-      ["Total Waste Today", totalWaste],
-      ["Active Bins", activeBins],
-      ["Recycling Rate", "94.2%"], // Static for now, as per cards
-      ["Carbon Offset", "847 kg"]
-    ]
+    // Box 2
+    doc.roundedRect(14 + boxWidth + 12, yPos, boxWidth, boxHeight, 2, 2, "FD")
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Active Bins", 20 + boxWidth + 12, yPos + 12)
+    doc.setFontSize(11)
+    doc.setTextColor(0)
+    doc.text(activeBins, 20 + boxWidth + 12, yPos + 25)
 
-    autoTable(doc, {
-      startY: 50,
-      head: [['Metric', 'Value']],
-      body: summaryData,
-      theme: 'grid',
-      headStyles: { fillColor: [52, 211, 153] } // Green-ish
-    })
+    yPos += 50
 
-    // Bin Status Table
-    doc.text("Bin Status Overview", 14, (doc as any).lastAutoTable.finalY + 15)
+    // --- Summary ---
+    doc.setFontSize(14)
+    doc.setTextColor(primaryColor)
+    doc.setLineWidth(3)
+    doc.line(14, yPos - 5, 14, yPos + 5)
+    doc.text("Waste Collection Summary", 20, yPos)
 
-    const tableData = binStatusData.map(bin => [
-      bin.id,
-      bin.location,
-      `${bin.fillLevel}%`,
-      bin.lastCollection,
-      bin.status
+    yPos += 15
+
+    // Highlight Box
+    doc.setFillColor(232, 245, 233) // #e8f5e9
+    doc.setDrawColor(primaryColor)
+    doc.setLineWidth(0.1)
+    doc.rect(14, yPos, pageWidth - 28, 40, "F")
+    doc.setLineWidth(2)
+    doc.line(14, yPos, 14, yPos + 40)
+
+    doc.setFontSize(10)
+    doc.setTextColor(0)
+    doc.text(`Total Waste Collected: ${totalWaste}`, 25, yPos + 15)
+    doc.text(`Collection Period: ${timeRange === 'all' ? 'All Time' : `Last ${timeRange}`}`, 25, yPos + 30)
+
+    yPos += 60
+
+    // --- Table ---
+    doc.setFontSize(14)
+    doc.setTextColor(primaryColor)
+    doc.setLineWidth(3)
+    doc.line(14, yPos - 5, 14, yPos + 5)
+    doc.text("Daily Waste Analysis (in items)", 20, yPos)
+
+    // Table Config
+    const tableHeaders = [['Date', 'Plastic', 'Metal', 'Paper', 'Mixed', 'Total']]
+    const tableBody = collectionTrends.map(row => [
+      row.date,
+      row.plastic,
+      row.metal,
+      row.paper,
+      row.mixed_waste,
+      (row.plastic + row.metal + row.paper + row.mixed_waste)
     ])
 
     autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Bin ID', 'Location', 'Fill Level', 'Last Active', 'Status']],
-      body: tableData,
-      theme: 'striped',
-      headStyles: { fillColor: [167, 139, 250] } // Purple-ish
+      startY: yPos + 15,
+      head: tableHeaders,
+      body: tableBody,
+      theme: 'grid',
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+        lineColor: [221, 221, 221],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: primaryColor,
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      bodyStyles: {
+        textColor: 50,
+        halign: 'center'
+      },
+      alternateRowStyles: {
+        fillColor: [246, 246, 246]
+      }
     })
 
-    // Save
+    // --- Footer ---
+    const finalY = (doc as any).lastAutoTable.finalY + 30
+    doc.setDrawColor(200)
+    doc.setLineWidth(0.5)
+    doc.line(14, finalY, pageWidth - 14, finalY)
+
+    doc.setFontSize(9)
+    doc.setTextColor(100)
+    doc.text("Generated by Fostride R3Bin • AI-Powered Waste Segregation System", pageWidth / 2, finalY + 15, { align: "center" })
+    doc.text(`© ${new Date().getFullYear()} Fostride | Sustainability Through Innovation`, pageWidth / 2, finalY + 28, { align: "center" })
+
     doc.save(`waste-report-${new Date().toISOString().split('T')[0]}.pdf`)
   }
 
