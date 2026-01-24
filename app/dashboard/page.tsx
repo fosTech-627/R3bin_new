@@ -716,7 +716,7 @@ export default function DashboardPage() {
         setActiveBins(`${activeCount}/${registryData.length}`)
       }
 
-      console.log('DEBUG: Fetching r3bin_records with v3...')
+      // 5. Alerts (from r3bin_records - Fill Levels)
       const { data: binRecord, error: recordError } = await supabase
         .rpc('get_latest_bin_status_v3')
 
@@ -724,26 +724,23 @@ export default function DashboardPage() {
         console.error('Error fetching r3bin_records:', JSON.stringify(recordError, null, 2))
         setAlerts([]) // Reset on error
       } else if (binRecord) {
-        console.log('DEBUG: Found binRecord:', binRecord)
         const generatedAlerts: UIAlert[] = []
         let idCounter = 1
 
         // Check each bin's fill status (True = Full)
-        // Access safely in case of casing mismatch
         const b1 = binRecord.bin1_plastics
         const b2 = binRecord.bin2_paper
         const b3 = binRecord.bin3_metal
         const b4 = binRecord.bin4_mixed
+        const binId = binRecord.bin_id || 'Unknown'
 
-        if (b1) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Plastic Bin Full', time: 'Just now' })
-        if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Paper Bin Full', time: 'Just now' })
-        if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Metal Bin Full', time: 'Just now' })
-        if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: 'Mixed Waste Bin Full', time: 'Just now' })
+        if (b1) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Plastic Bin Full (Bin ${binId})`, time: 'Just now' })
+        if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Paper Bin Full (Bin ${binId})`, time: 'Just now' })
+        if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Metal Bin Full (Bin ${binId})`, time: 'Just now' })
+        if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Mixed Waste Bin Full (Bin ${binId})`, time: 'Just now' })
 
-        console.log('DEBUG: Generated Alerts:', generatedAlerts)
         setAlerts(generatedAlerts)
       } else {
-        console.log('DEBUG: No binRecord found in r3bin_records')
         setAlerts([])
       }
 
