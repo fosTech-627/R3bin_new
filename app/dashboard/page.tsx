@@ -716,37 +716,55 @@ export default function DashboardPage() {
         setActiveBins(`${activeCount}/${registryData.length}`)
       }
 
-      // 5. Alerts (from bins table)
-      // Note: Column name appears to be "bin_alerts:" based on schema debug
-      const { data: binsAlertsData, error: binsAlertsError } = await supabase
-        .from('bins')
-        .select('bin_id, "bin_alerts:"') // Use quotes to handle special char
-        .not('"bin_alerts:"', 'is', null)
+      // 5. Alerts (from r3bin_records - Fill Levels)
+      const { data: binRecord, error: recordError } = await supabase
+        .from('r3bin_records')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
-      if (binsAlertsError) {
-        console.error('Error fetching bin alerts:', binsAlertsError)
-      } else if (binsAlertsData) {
-        // Map bin alerts to the Alert structure
-        const mappedAlerts: UIAlert[] = binsAlertsData.map((bin: any, index: number) => {
-          // Supabase response might normalize keys or keep them with colon
-          const messageStr = bin['bin_alerts:'] || bin.bin_alerts || 'Unknown Alert'
+      if (recordError) {
+        console.error('Error fetching r3bin_records:', recordError)
+      } else if (binRecord) {
+        const newAlerts: UIAlert[] = []
+        let idCounter = 1
 
-          let type = 'info'
-
-          if (messageStr.toLowerCase().includes('critical') || messageStr.toLowerCase().includes('overflow')) {
-            type = 'critical'
-          } else if (messageStr.toLowerCase().includes('warning') || messageStr.toLowerCase().includes('low')) {
-            type = 'warning'
-          }
-
-          return {
-            id: index,
-            type: type,
-            message: `${bin.bin_id}: ${messageStr}`,
+        // Check each bin's fill status (True = Full)
+        if (binRecord.bin1_plastics) {
+          newAlerts.push({
+            id: idCounter++,
+            type: 'critical',
+            message: 'Plastic Bin Full',
             time: 'Just now'
-          }
-        })
-        setAlerts(mappedAlerts)
+          })
+        }
+        if (binRecord.bin2_paper) {
+          newAlerts.push({
+            id: idCounter++,
+            type: 'critical',
+            message: 'Paper Bin Full',
+            time: 'Just now'
+          })
+        }
+        if (binRecord.bin3_metal) {
+          newAlerts.push({
+            id: idCounter++,
+            type: 'critical',
+            message: 'Metal Bin Full',
+            time: 'Just now'
+          })
+        }
+        if (binRecord.bin4_mixed) {
+          newAlerts.push({
+            id: idCounter++,
+            type: 'critical',
+            message: 'Mixed Waste Bin Full',
+            time: 'Just now'
+          })
+        }
+
+        setAlerts(newAlerts)
       }
 
     } catch (err: any) {
