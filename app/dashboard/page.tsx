@@ -575,8 +575,8 @@ export default function DashboardPage() {
       }
 
       // 2. Hourly Activity (Calculated from FILTERED logs)
+      // 2. Hourly Activity (Calculated from FILTERED logs)
       if (rawLogs) {
-        // Filter rawLogs based on timeRange (Logic duplicated from Trends filter for clarity)
         const now = new Date()
         let cutoffDate: Date | null = new Date()
         switch (timeRange) {
@@ -588,27 +588,46 @@ export default function DashboardPage() {
           default: cutoffDate.setDate(now.getDate() - 7);
         }
 
-        const filteredLogsForHours = cutoffDate
-          ? rawLogs.filter((l: any) => new Date(l.updated_at) >= cutoffDate)
-          : rawLogs
+        // Helper to parse dates robustly (matches trends logic)
+        const getLogDate = (dateStr: string): Date | null => {
+          if (!dateStr) return null;
+          try {
+            if (dateStr.includes('T')) {
+              const d = new Date(dateStr)
+              return isNaN(d.getTime()) ? null : d
+            } else {
+              // Custom: YY-MM-DD_HH-mm-ss
+              const parts = dateStr.split(/[_ ]/)
+              const dateParts = parts[0].split('-')
+              const timeParts = parts[1] ? parts[1].split('-') : [0, 0, 0]
+
+              if (dateParts.length >= 3) {
+                let y = parseInt(dateParts[0]); if (y < 100) y += 2000;
+                let m = parseInt(dateParts[1]) - 1;
+                let d = parseInt(dateParts[2]);
+                let h = parseInt(timeParts[0] as string || '0');
+                let min = parseInt(timeParts[1] as string || '0');
+                let s = parseInt(timeParts[2] as string || '0');
+
+                return new Date(y, m, d, h, min, s)
+              }
+            }
+          } catch (e) { return null }
+          return null
+        }
 
         const hourCounts = new Array(24).fill(0)
 
-        filteredLogsForHours.forEach((log: any) => {
-          if (!log.updated_at) return
-          try {
-            let h = 0
-            if (log.updated_at.includes('T')) {
-              const dateObj = new Date(log.updated_at)
-              if (!isNaN(dateObj.getTime())) h = dateObj.getHours()
-            } else {
-              const timePart = log.updated_at.split(/[_ ]/)[1]
-              if (timePart) {
-                h = parseInt(timePart.split('-')[0])
-              }
-            }
-            if (h >= 0 && h < 24) hourCounts[h]++
-          } catch (e) { }
+        rawLogs.forEach((log: any) => {
+          const dateObj = getLogDate(log.updated_at)
+
+          // Check Filter
+          if (!dateObj) return
+          if (cutoffDate && dateObj < cutoffDate) return
+
+          // Count Hour
+          const h = dateObj.getHours()
+          if (h >= 0 && h < 24) hourCounts[h]++
         })
 
         const computedHourly = hourCounts.map((count, i) => ({
