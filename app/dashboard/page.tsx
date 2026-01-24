@@ -721,12 +721,11 @@ export default function DashboardPage() {
       const { data: binRecord, error: recordError } = await supabase
         .from('r3bin_records')
         .select('*')
-        .order('id', { ascending: false })
         .limit(1)
         .maybeSingle()
 
       if (recordError) {
-        console.error('Error fetching r3bin_records:', recordError)
+        console.error('Error fetching r3bin_records:', JSON.stringify(recordError, null, 2))
         setAlerts([]) // Reset on error
       } else if (binRecord) {
         console.log('DEBUG: Found binRecord:', binRecord)
