@@ -149,45 +149,60 @@ export default function DashboardPage() {
     setError(null)
     let activeCount = 0
     try {
-      // 1. Collection Trends
-      const { data: trendsData, error: trendsError } = await supabase
-        .from('waste_collections')
-        .select('*')
-        .order('date', { ascending: true })
+      // 1. Collection Trends (Calculated from Logs)
+      const { data: rawLogs, error: logsError } = await supabase
+        .from('r3bin_waste_logs')
+        .select('updated_at, waste_type')
+        .order('updated_at', { ascending: true })
 
-      if (trendsError) console.error('Error fetching trends:', trendsError)
-      else if (trendsData) {
+      if (logsError) console.error('Error fetching logs:', logsError)
+      else if (rawLogs) {
+        // A. Aggregate for Trends (Group by Date)
+        const dailyStats: Record<string, CollectionTrend> = {}
+        const todayStr = new Date().toISOString().split('T')[0]
+
+        rawLogs.forEach((log: any) => {
+          // Normalize date to YYYY-MM-DD
+          const date = log.updated_at ? log.updated_at.split('T')[0] : 'Unknown'
+          const type = (log.waste_type || 'mixed').toLowerCase()
+
+          if (!dailyStats[date]) {
+            dailyStats[date] = { date, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 }
+          }
+
+          if (type.includes('metal')) dailyStats[date].metal++
+          else if (type.includes('plastic')) dailyStats[date].plastic++
+          else if (type.includes('paper')) dailyStats[date].paper++
+          else dailyStats[date].mixed_waste++
+        })
+
+        // Convert to array and sort
+        const trendsData = Object.values(dailyStats).sort((a, b) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+        )
         setCollectionTrends(trendsData)
 
-        // Calculate Total Waste Today (Sum of all categories for the current date)
-        const todayStr = new Date().toISOString().split('T')[0]
-        const todayData = trendsData.find((d: any) => d.date === todayStr)
-
-        let todayCount = 0
-        if (todayData) {
-          todayCount = (todayData.metal || 0) +
-            (todayData.plastic || 0) +
-            (todayData.paper || 0) +
-            (todayData.mixed_waste || 0)
-        }
+        // B. Total Waste Today
+        const todayStats = dailyStats[todayStr]
+        const todayCount = todayStats
+          ? (todayStats.metal + todayStats.plastic + todayStats.paper + todayStats.mixed_waste)
+          : 0
         setTotalWaste(`${todayCount} items`)
 
-        // Calculate Waste Composition from Waste Collections
+        // C. Waste Composition (Aggregate all time)
         let totalMetal = 0
         let totalPlastic = 0
         let totalPaper = 0
         let totalMixed = 0
 
-        trendsData.forEach((d: any) => {
-          totalMetal += d.metal || 0
-          totalPlastic += d.plastic || 0
-          totalPaper += d.paper || 0
-          totalMixed += d.mixed_waste || 0
+        Object.values(dailyStats).forEach((d) => {
+          totalMetal += d.metal
+          totalPlastic += d.plastic
+          totalPaper += d.paper
+          totalMixed += d.mixed_waste
         })
 
         const grandTotal = totalMetal + totalPlastic + totalPaper + totalMixed
-
-        // Helper to safely calculate percentage
         const calcPct = (val: number) => grandTotal > 0 ? Math.round((val / grandTotal) * 100) : 0
 
         const compositionData = [
