@@ -1089,30 +1089,31 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col h-full justify-center">
-                    <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-12 gap-2">
+                  <div className="flex flex-col h-full">
+                    {/* Time Segments Labels */}
+                    <div className="flex justify-between text-[10px] text-muted-foreground mb-2 px-1">
+                      <span>Night (0-6)</span>
+                      <span>Morning (6-12)</span>
+                      <span>Afternoon (12-18)</span>
+                      <span>Evening (18-24)</span>
+                    </div>
+
+                    <div className="grid grid-cols-6 gap-2 bg-secondary/20 p-4 rounded-lg border border-border/50">
                       {hourlyActivity.map((slot: any, i: number) => {
-                        // Heatmap Logic
-                        // Find Max for relative intensity
                         const maxVal = Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1
                         const val = slot.activity || 0
-                        const intensity = val / maxVal // 0 to 1
+                        const intensity = val / maxVal
 
-                        // Color Interpolation (Green -> Yellow -> Red)
-                        // Green: hue 140, Red: hue 0
-                        // We want 0-0.5 to be Green->Yellow, 0.5-1.0 to be Yellow->Red?
-                        // Simple: 120 (Green) -> 0 (Red)
-                        // hue = 120 * (1 - intensity)
-                        // High intensity = Red (0). Low = Green (120).
-                        // But 0 items should be gray/faint.
-
-                        let bgColor = "#27272a" // default gray
-                        let opacity = 0.3
+                        // Improved Gradient: Green(140) -> Yellow(60) -> Red(0)
+                        // We use a non-linear interpolation for better contrast
+                        let bgColor = "#18181b"
+                        let borderColor = "#27272a"
 
                         if (val > 0) {
+                          // 120 -> 0 hue
                           const hue = Math.max(0, 120 - (intensity * 120))
-                          bgColor = `hsl(${hue}, 80%, 50%)`
-                          opacity = 0.5 + (intensity * 0.5) // Minimum 0.5 opacity for visibility
+                          bgColor = `hsl(${hue}, 85%, 50%)`
+                          borderColor = `hsl(${hue}, 90%, 40%)`
                         }
 
                         return (
@@ -1120,34 +1121,36 @@ export default function DashboardPage() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div
-                                  className="aspect-square rounded-md flex items-center justify-center text-xs cursor-pointer transition-all hover:scale-110 hover:brightness-110 hover:z-10 relative"
+                                  className="aspect-square rounded flex flex-col items-center justify-center cursor-pointer transition-all hover:scale-105 hover:shadow-lg relative group"
                                   style={{
-                                    backgroundColor: bgColor,
-                                    opacity: val > 0 ? 1 : 0.3,
-                                    border: val > 0 ? `1px solid ${bgColor}` : '1px solid #3f3f46'
+                                    backgroundColor: val > 0 ? bgColor : 'transparent',
+                                    border: `1px solid ${val > 0 ? borderColor : '#3f3f46'}`,
+                                    opacity: val > 0 ? 0.9 : 0.5
                                   }}
                                 >
-                                  <span className={`text-[10px] ${val > 0 ? 'text-black font-bold' : 'text-muted-foreground'}`}>
-                                    {i}
+                                  <span className="text-[9px] text-muted-foreground group-hover:text-white mb-0.5">
+                                    {i.toString().padStart(2, '0')}
                                   </span>
+                                  {val > 0 && (
+                                    <span className="text-[10px] font-bold text-black drop-shadow-sm">
+                                      {val}
+                                    </span>
+                                  )}
                                 </div>
                               </TooltipTrigger>
-                              <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <TooltipContent className="bg-zinc-950 border-zinc-800 text-white">
                                 <div className="text-center">
-                                  <p className="font-bold text-sm">{slot.hour}</p>
-                                  <p className="text-xs text-muted-foreground">{val} items collected</p>
+                                  <p className="font-semibold">{slot.hour}</p>
+                                  <p className="text-sm">{val} items</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {intensity > 0.8 ? 'Peak Activity' : intensity > 0.4 ? 'Moderate' : 'Low'}
+                                  </p>
                                 </div>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         )
                       })}
-                    </div>
-                    {/* Legend / X-Axis labels helpers if needed, but grid numbers suffice */}
-                    <div className="mt-4 flex justify-between text-xs text-muted-foreground px-1">
-                      <span>00:00</span>
-                      <span>12:00</span>
-                      <span>23:00</span>
                     </div>
                   </div>
                 </CardContent>
