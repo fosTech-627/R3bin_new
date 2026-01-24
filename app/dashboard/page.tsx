@@ -242,9 +242,13 @@ export default function DashboardPage() {
     doc.setLineWidth(2)
     doc.line(14, yPos, 14, yPos + 40)
 
+    // Calculate Total for the *Selected Period* (not just Today)
+    const periodTotal = collectionTrends.reduce((acc, row) =>
+      acc + row.plastic + row.metal + row.paper + row.mixed_waste, 0)
+
     doc.setFontSize(10)
     doc.setTextColor(0)
-    doc.text(`Total Waste Collected: ${totalWaste}`, 25, yPos + 15)
+    doc.text(`Total Waste Collected: ${periodTotal} items`, 25, yPos + 15)
     doc.text(`Collection Period: ${timeRange === 'all' ? 'All Time' : `Last ${timeRange}`}`, 25, yPos + 30)
 
     yPos += 60
