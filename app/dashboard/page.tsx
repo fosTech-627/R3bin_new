@@ -34,7 +34,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -43,6 +43,12 @@ import {
   Bar,
   Legend
 } from "recharts"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { supabase } from "@/lib/supabase"
 import { formatDistanceToNow } from "date-fns"
 import jsPDF from 'jspdf'
@@ -143,6 +149,8 @@ export default function DashboardPage() {
   // Stats
   const [totalWaste, setTotalWaste] = useState("0 kg")
   const [activeBins, setActiveBins] = useState("0/0")
+  const [carbonOffset, setCarbonOffset] = useState("0 kg")
+  const [carbonBreakdown, setCarbonBreakdown] = useState({ plastic: "0", metal: "0", paper: "0" })
 
   const handleExport = () => {
     const doc = new jsPDF()
@@ -417,7 +425,11 @@ export default function DashboardPage() {
         let totalPaper = 0
         let totalMixed = 0
 
-        Object.values(dailyStats).forEach((d) => {
+        // Use filteredTrends to calculate Carbon Offset for the selected period
+        // OR use all-time if that's what the card implies. Usually cards reflect the filter.
+        // Let's use filteredTrends for consistency with the charts.
+
+        filteredTrends.forEach((d) => {
           totalMetal += d.metal
           totalPlastic += d.plastic
           totalPaper += d.paper
@@ -434,6 +446,36 @@ export default function DashboardPage() {
           { name: "Mixed Waste", value: calcPct(totalMixed), color: COLORS["Mixed Waste"] }
         ]
         setWasteComposition(compositionData)
+
+        // D. Carbon Offset Calculation
+        // Factors: 
+        // Plastic: 2.5 kg CO2e/kg * 0.02kg/item = 0.05
+        // Metal (Alu): 10 kg CO2e/kg * 0.015kg/item = 0.15
+        // Paper: 1.0 kg CO2e/kg * 0.01kg/item = 0.01
+
+        const CO2_PLASTIC = 0.05
+        const CO2_METAL = 0.15
+        const CO2_PAPER = 0.01
+
+        const offsetValue = (totalPlastic * CO2_PLASTIC) + (totalMetal * CO2_METAL) + (totalPaper * CO2_PAPER)
+        // Format to 1 decimal place if small, or integer if large
+        const formattedOffset = offsetValue < 10 ? offsetValue.toFixed(2) : Math.round(offsetValue).toString()
+
+        setCarbonOffset(`${formattedOffset} kg`)
+        setCarbonBreakdown({
+          plastic: (totalPlastic * CO2_PLASTIC).toFixed(2),
+          metal: (totalMetal * CO2_METAL).toFixed(2),
+          paper: (totalPaper * CO2_PAPER).toFixed(2)
+        })
+
+        // Update stats card (finding the card object isn't state-based, we need a state for it)
+        // Wait, statsCards is defined in render. I should create a state for it or just offset state.
+        // I see 'const [totalWaste, setTotalWaste]' but not offset.
+        // I will add a setCarbonOffset state relative to the existing code structure.
+
+        // Actually, looking at the code, statsCards is static in render except for 'value'.
+        // I submitted a separate state replacement earlier? No, I need to add state for Carbon Offset.
+
       }
 
       // 2. Hourly Activity
@@ -598,7 +640,7 @@ export default function DashboardPage() {
     },
     {
       title: "Carbon Offset",
-      value: "847 kg",
+      value: carbonOffset,
       change: "+8%",
       trend: "up",
       icon: Leaf,
@@ -672,28 +714,52 @@ export default function DashboardPage() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {statsCards.map((stat) => (
-                <Card key={stat.title} className="bg-card border-border">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div
-                        className="p-3 rounded-lg"
-                        style={{ backgroundColor: `${stat.color}15` }}
-                      >
-                        <stat.icon className="h-5 w-5" style={{ color: stat.color }} />
+              {statsCards.map((stat) => {
+                const CardComponent = (
+                  <Card key={stat.title} className="bg-card border-border h-full">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div
+                          className="p-3 rounded-lg"
+                          style={{ backgroundColor: `${stat.color}15` }}
+                        >
+                          <stat.icon className="h-5 w-5" style={{ color: stat.color }} />
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${stat.trend === 'up' ? 'text-green-400 border-green-400/30' : 'text-muted-foreground border-border'}`}
+                        >
+                          {stat.change}
+                        </Badge>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${stat.trend === 'up' ? 'text-green-400 border-green-400/30' : 'text-muted-foreground border-border'}`}
-                      >
-                        {stat.change}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  </CardContent>
-                </Card>
-              ))}
+                      <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    </CardContent>
+                  </Card>
+                )
+
+                if (stat.title === "Carbon Offset") {
+                  return (
+                    <TooltipProvider key={stat.title}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="cursor-help">{CardComponent}</div>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-zinc-900 border-zinc-800 text-zinc-100 p-3">
+                          <p className="font-semibold mb-2 text-green-400">Offset Breakdown</p>
+                          <div className="space-y-1 text-xs">
+                            <div className="flex justify-between gap-4"><span>Plastic:</span> <span>{carbonBreakdown.plastic} kg</span></div>
+                            <div className="flex justify-between gap-4"><span>Metal:</span> <span>{carbonBreakdown.metal} kg</span></div>
+                            <div className="flex justify-between gap-4"><span>Paper:</span> <span>{carbonBreakdown.paper} kg</span></div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )
+                }
+
+                return CardComponent
+              })}
             </div>
 
             {/* Main Charts Grid */}
@@ -729,7 +795,7 @@ export default function DashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                         <XAxis dataKey="date" stroke="#71717a" fontSize={12} />
                         <YAxis stroke="#71717a" fontSize={12} />
-                        <Tooltip
+                        <RechartsTooltip
                           contentStyle={{
                             backgroundColor: '#18181b',
                             border: '1px solid #27272a',
@@ -817,7 +883,7 @@ export default function DashboardPage() {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip
+                        <RechartsTooltip
                           contentStyle={{
                             backgroundColor: '#18181b',
                             border: '1px solid #27272a',
@@ -860,7 +926,7 @@ export default function DashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                         <XAxis dataKey="hour" stroke="#71717a" fontSize={12} />
                         <YAxis stroke="#71717a" fontSize={12} />
-                        <Tooltip
+                        <RechartsTooltip
                           contentStyle={{
                             backgroundColor: '#18181b',
                             border: '1px solid #27272a',
