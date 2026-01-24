@@ -162,8 +162,25 @@ export default function DashboardPage() {
         const todayStr = new Date().toISOString().split('T')[0]
 
         rawLogs.forEach((log: any) => {
-          // Normalize date to YYYY-MM-DD
-          const date = log.updated_at ? log.updated_at.split('T')[0] : 'Unknown'
+          // Normalize date. Handle ISO (YYYY-MM-DD...) and Custom (MM-DD-HH_...)
+          let date = 'Unknown'
+          if (log.updated_at) {
+            if (log.updated_at.includes('T')) {
+              // Standard ISO format
+              date = log.updated_at.split('T')[0]
+            } else {
+              // Custom format: 07-12-20_595240 (Assuming MM-DD-HH_...)
+              // We'll assume current year for now if year is missing
+              const parts = log.updated_at.split('-')
+              if (parts.length >= 2) {
+                const month = parts[0]
+                const day = parts[1]
+                const currentYear = new Date().getFullYear()
+                date = `${currentYear}-${month}-${day}` // Format: YYYY-MM-DD
+              }
+            }
+          }
+
           const type = (log.waste_type || 'mixed').toLowerCase()
 
           if (!dailyStats[date]) {
