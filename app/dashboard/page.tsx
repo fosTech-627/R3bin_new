@@ -159,35 +159,38 @@ export default function DashboardPage() {
     paper: "0", paperCount: 0
   })
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.width
+    const pageHeight = doc.internal.pageSize.height
     const primaryColor = "#2e7d32"
 
-    // --- Header ---
+    // --- Background Letterhead ---
+    try {
+      const logoUrl = '/images/report-letterhead.png'
+      const img = new Image()
+      img.src = logoUrl
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+      })
+      doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight)
+    } catch (e) {
+      console.warn("Could not load letterhead", e)
+    }
+
+    // --- Content Header ---
     doc.setFont("helvetica", "bold")
     doc.setTextColor(primaryColor)
     doc.setFontSize(22)
+    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 45, { align: "right" }) // Moved down for letterhead
 
-    // Fallback Text Logo or Image
-    doc.text("Fostride", 14, 25)
-
-    // Title (Top Right)
-    doc.setFontSize(26)
-    doc.setTextColor(primaryColor)
-    doc.text("R3Bin Waste Analysis Report", pageWidth - 14, 25, { align: "right" })
-
-    doc.setFontSize(10)
-    doc.setTextColor(100)
-    doc.text("Smart Segregation • Data-Driven Sustainability", pageWidth - 14, 32, { align: "right" })
-
-    // Green Line
-    doc.setDrawColor(primaryColor)
-    doc.setLineWidth(1.5)
-    doc.line(14, 40, pageWidth - 14, 40)
+    // Tagline removed to avoid clash
 
     // --- Installation Details ---
-    let yPos = 60
+
+    // --- Installation Details ---
+    let yPos = 65
     doc.setFontSize(14)
     doc.setTextColor(primaryColor)
     doc.setDrawColor(primaryColor)
