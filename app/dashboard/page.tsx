@@ -158,6 +158,13 @@ export default function DashboardPage() {
 
       if (logsError) console.error('Error fetching logs:', logsError)
       else if (rawLogs) {
+        // ALERT for visibility since console logs are being missed
+        if (rawLogs.length === 0) {
+          alert("Supabase returned 0 logs. Table might be empty or permissions (RLS) blocked.")
+        } else {
+          alert(`SUCCESS: Fetched ${rawLogs.length} logs.\nFirst Date Sample: ${rawLogs[0].updated_at}\nCheck chart now.`)
+        }
+
         console.log('DEBUG: Raw Logs Count:', rawLogs.length)
         if (rawLogs.length > 0) console.log('DEBUG: First Log Date:', rawLogs[0].updated_at)
 
