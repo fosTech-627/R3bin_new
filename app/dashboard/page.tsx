@@ -145,6 +145,7 @@ export default function DashboardPage() {
   }, [])
 
   const fetchData = async () => {
+    console.log('DEBUG: Starting fetchData...')
     setLoading(true)
     setError(null)
     let activeCount = 0
