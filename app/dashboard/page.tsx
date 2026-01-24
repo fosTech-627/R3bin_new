@@ -1131,56 +1131,79 @@ export default function DashboardPage() {
                   <CardDescription>Collection activity throughout the day</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[200px] w-full mt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={hourlyActivity}>
-                        <defs>
-                          <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9} />   {/* Red (Hot) */}
-                            <stop offset="30%" stopColor="#eab308" stopOpacity={0.8} />  {/* Yellow */}
-                            <stop offset="60%" stopColor="#22c55e" stopOpacity={0.7} />  {/* Green */}
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2} />  {/* Blue (Cold) */}
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                        <XAxis
-                          dataKey="hour"
-                          stroke="#71717a"
-                          fontSize={12}
-                          tickFormatter={(val) => val.split(':')[0]} // Show only hour number
-                          interval={3} // Show every 3rd hour to avoid clutter
-                        />
-                        <YAxis hide />
-                        <RechartsTooltip
-                          content={({ active, payload, label }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl">
-                                  <p className="text-zinc-100 font-semibold mb-1">{label}</p>
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                                    <span className="text-zinc-400 text-xs">Activity:</span>
-                                    <span className="text-white font-mono font-bold text-sm">
-                                      {payload[0].value}
-                                    </span>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="activity"
-                          stroke="#34d399"
-                          strokeWidth={2}
-                          fillOpacity={1}
-                          fill="url(#colorActivity)"
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {/* Heatmap Logic */}
+                  {(() => {
+                    // Safety check for valid data
+                    const validData = Array.isArray(hourlyActivity) && hourlyActivity.length > 0
+                    const maxVal = validData ? (Math.max(...hourlyActivity.map((h: any) => h.activity || 0)) || 1) : 1
+
+                    // Generate Gradient Stops
+                    const gradientStops = validData ? hourlyActivity.map((slot: any, index: number) => {
+                      const val = slot.activity || 0
+                      const intensity = val / maxVal
+                      const percent = (index / 23) * 100
+
+                      // Color Interpolation (Blue -> Red)
+                      // Blue(210) -> Cyan(180) -> Green(120) -> Yellow(60) -> Red(0)
+                      let hue = 210
+                      if (intensity > 0) {
+                        hue = 210 - (intensity * 210)
+                      }
+                      const color = `hsl(${Math.max(0, hue)}, 85%, 50%)`
+                      return `${color} ${percent}%`
+                    }).join(', ') : '#3b82f6 0%, #3b82f6 100%'
+
+                    const backgroundStyle = {
+                      background: `linear-gradient(to right, ${gradientStops})`,
+                      filter: 'blur(8px)', // Blur for smooth "heat" effect
+                      opacity: 0.8
+                    }
+
+                    return (
+                      <div className="h-[140px] w-full mt-6 relative rounded-xl overflow-hidden border border-zinc-800/50 bg-zinc-900/50">
+                        {/* The Glowing Heatmap Background */}
+                        <div className="absolute inset-0 w-full h-full transform scale-105" style={backgroundStyle} />
+
+                        {/* Overlay Interaction Layer (Transparent Chart) */}
+                        <div className="absolute inset-0 z-10 opacity-0 hover:opacity-100 transition-opacity">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={hourlyActivity}>
+                              <RechartsTooltip
+                                cursor={{ fill: 'rgba(255,255,255,0.1)' }}
+                                content={({ active, payload, label }) => {
+                                  if (active && payload && payload.length) {
+                                    return (
+                                      <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl translate-y-[-100%]">
+                                        <p className="text-zinc-100 font-semibold mb-1">{label}</p>
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-2 h-2 rounded-full bg-white" />
+                                          <span className="text-zinc-400 text-xs">Activity:</span>
+                                          <span className="text-white font-mono font-bold text-sm">
+                                            {payload[0].value}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )
+                                  }
+                                  return null
+                                }}
+                              />
+                              <Bar dataKey="activity" fill="transparent" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+
+                        {/* Axis Labels Overlay (Bottom) */}
+                        <div className="absolute bottom-1 left-4 right-4 flex justify-between text-[10px] text-white/70 font-mono font-bold pointer-events-none z-20 mix-blend-overlay">
+                          <span>00:00</span>
+                          <span>06:00</span>
+                          <span>12:00</span>
+                          <span>18:00</span>
+                          <span>23:00</span>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </CardContent>
               </Card>
 
