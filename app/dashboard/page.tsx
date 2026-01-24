@@ -162,46 +162,55 @@ export default function DashboardPage() {
         const todayStr = new Date().toISOString().split('T')[0]
 
         rawLogs.forEach((log: any) => {
-          // Normalize date. Handle ISO (YYYY-MM-DD...) and Custom (MM-DD-HH_...)
-          let date = 'Unknown'
-          if (log.updated_at) {
-            if (log.updated_at.includes('T')) {
-              // Standard ISO format
-              date = log.updated_at.split('T')[0]
-            } else {
-              // Custom format: 26-01-17_16-15-29 (YY-MM-DD_...)
-              const parts = log.updated_at.split('_')[0].split('-') // Get date part "26-01-17"
+          // Normalize date. Handle ISO (YYYY-MM-DD...) and Custom (YY-MM-DD_...)
+          let dateKey = 'Unknown'
 
-              if (parts.length >= 3) {
-                // Assuming YY-MM-DD based on "26-01-17" (2026 Jan 17)
-                let year = parseInt(parts[0])
-                let month = parts[1]
-                let day = parts[2]
+          try {
+            if (log.updated_at) {
+              if (log.updated_at.includes('T')) {
+                // Standard ISO format
+                dateKey = log.updated_at.split('T')[0]
+              } else {
+                // Custom format: 26-01-17_16-15-29 (YY-MM-DD_...)
+                // Split by underscore or space to get date part
+                const datePart = log.updated_at.split(/[_ ]/)[0]
+                const parts = datePart.split('-')
 
-                // Adjust 2-digit year to 4-digit (Assuming 20xx)
-                if (year < 100) year += 2000
+                if (parts.length >= 3) {
+                  // Assuming YY-MM-DD
+                  let year = parseInt(parts[0])
+                  let month = parseInt(parts[1])
+                  let day = parseInt(parts[2])
 
-                date = `${year}-${month}-${day}` // ISO YYYY-MM-DD
-              } else if (parts.length === 2) {
-                // Fallback for older "MM-DD" format if seen
-                const currentYear = new Date().getFullYear()
-                date = `${currentYear}-${parts[0]}-${parts[1]}`
+                  // Adjust 2-digit year to 4-digit (Assuming 20xx)
+                  if (year < 100) year += 2000
+
+                  // Create Date object (Month is 0-indexed)
+                  // Use UTC to avoid timezone shifts affecting the "Day" bucket
+                  const dateObj = new Date(Date.UTC(year, month - 1, day))
+                  dateKey = dateObj.toISOString().split('T')[0]
+                }
               }
             }
+          } catch (e) {
+            console.warn('Date parse error', log.updated_at)
           }
+
+          // Skip invalid dates
+          if (dateKey === 'Unknown') return
 
           // Clean waste_type: remove quotes if present, trim whitespace
           const rawType = log.waste_type ? String(log.waste_type).replace(/['"]/g, '').trim() : 'mixed'
           const type = rawType.toLowerCase()
 
-          if (!dailyStats[date]) {
-            dailyStats[date] = { date, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 }
+          if (!dailyStats[dateKey]) {
+            dailyStats[dateKey] = { date: dateKey, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 }
           }
 
-          if (type.includes('metal')) dailyStats[date].metal++
-          else if (type.includes('plastic')) dailyStats[date].plastic++
-          else if (type.includes('paper')) dailyStats[date].paper++
-          else dailyStats[date].mixed_waste++
+          if (type.includes('metal')) dailyStats[dateKey].metal++
+          else if (type.includes('plastic')) dailyStats[dateKey].plastic++
+          else if (type.includes('paper')) dailyStats[dateKey].paper++
+          else dailyStats[dateKey].mixed_waste++
         })
 
         // Convert to array and sort
@@ -223,6 +232,7 @@ export default function DashboardPage() {
           ]
         }
 
+        console.log('Final Trends Data:', trendsData)
         setCollectionTrends(trendsData)
 
         // B. Total Waste Today
