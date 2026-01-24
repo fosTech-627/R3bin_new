@@ -795,7 +795,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {statsCards.map((stat) => {
                 const isCarbon = stat.title === "Carbon Offset"
-                const isWaste = stat.title === "Total Waste Today"
+                const isWaste = stat.title === "Total Waste"
 
                 // Determine value to display (Animated or Static)
                 let DisplayValue = <>{stat.value}</>
