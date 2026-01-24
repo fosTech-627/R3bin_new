@@ -474,13 +474,13 @@ export default function DashboardPage() {
 
         setCollectionTrends(filteredTrends)
 
-        // B. Total Waste Today
-        const todayStats = dailyStats[todayStr]
-        const todayCount = todayStats
-          ? (todayStats.metal + todayStats.plastic + todayStats.paper + todayStats.mixed_waste)
-          : 0
-        setTotalWaste(`${todayCount} items`)
-        setTotalWasteNum(todayCount)
+        // B. Total Waste (Selected Period)
+        // Sum up the filtered trends to get the total for the selected time range
+        const periodTotal = filteredTrends.reduce((acc, d) =>
+          acc + d.metal + d.plastic + d.paper + d.mixed_waste, 0)
+
+        setTotalWaste(`${periodTotal} items`)
+        setTotalWasteNum(periodTotal)
 
         // C. Waste Composition (Aggregate all time)
         let totalMetal = 0
@@ -689,9 +689,20 @@ export default function DashboardPage() {
     }
   }
 
+  const getTimeLabel = (range: string) => {
+    switch (range) {
+      case '24h': return 'Last 24h';
+      case '7d': return 'Last 7 Days';
+      case '30d': return 'Last 30 Days';
+      case '90d': return 'Last 90 Days';
+      case 'all': return 'All Time';
+      default: return 'Selected Period';
+    }
+  }
+
   const statsCards = [
     {
-      title: "Total Waste Today",
+      title: `Total Waste`,
       value: totalWaste,
       change: "+12%",
       trend: "up",
