@@ -49,6 +49,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { supabase } from "@/lib/supabase"
 import { formatDistanceToNow } from "date-fns"
 import jsPDF from 'jspdf'
@@ -148,9 +149,15 @@ export default function DashboardPage() {
 
   // Stats
   const [totalWaste, setTotalWaste] = useState("0 kg")
+  const [totalWasteNum, setTotalWasteNum] = useState(0) // For animation
   const [activeBins, setActiveBins] = useState("0/0")
-  const [carbonOffset, setCarbonOffset] = useState("0 kg")
-  const [carbonBreakdown, setCarbonBreakdown] = useState({ plastic: "0", metal: "0", paper: "0" })
+  const [carbonOffset, setCarbonOffset] = useState("0 kg") // Keep string for fallback/export
+  const [carbonOffsetNum, setCarbonOffsetNum] = useState(0) // For animation
+  const [carbonBreakdown, setCarbonBreakdown] = useState({
+    plastic: "0", plasticCount: 0,
+    metal: "0", metalCount: 0,
+    paper: "0", paperCount: 0
+  })
 
   const handleExport = () => {
     const doc = new jsPDF()
@@ -418,6 +425,7 @@ export default function DashboardPage() {
           ? (todayStats.metal + todayStats.plastic + todayStats.paper + todayStats.mixed_waste)
           : 0
         setTotalWaste(`${todayCount} items`)
+        setTotalWasteNum(todayCount)
 
         // C. Waste Composition (Aggregate all time)
         let totalMetal = 0
@@ -462,10 +470,15 @@ export default function DashboardPage() {
         const formattedOffset = offsetValue < 10 ? offsetValue.toFixed(2) : Math.round(offsetValue).toString()
 
         setCarbonOffset(`${formattedOffset} kg`)
+        setCarbonOffsetNum(offsetValue)
+
         setCarbonBreakdown({
           plastic: (totalPlastic * CO2_PLASTIC).toFixed(2),
+          plasticCount: totalPlastic,
           metal: (totalMetal * CO2_METAL).toFixed(2),
-          paper: (totalPaper * CO2_PAPER).toFixed(2)
+          metalCount: totalMetal,
+          paper: (totalPaper * CO2_PAPER).toFixed(2),
+          paperCount: totalPaper
         })
 
         // Update stats card (finding the card object isn't state-based, we need a state for it)
@@ -715,6 +728,18 @@ export default function DashboardPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {statsCards.map((stat) => {
+                const isCarbon = stat.title === "Carbon Offset"
+                const isWaste = stat.title === "Total Waste Today"
+
+                // Determine value to display (Animated or Static)
+                let DisplayValue = <>{stat.value}</>
+
+                if (isCarbon) {
+                  DisplayValue = <AnimatedNumber value={carbonOffsetNum} suffix=" kg" />
+                } else if (isWaste) {
+                  DisplayValue = <AnimatedNumber value={totalWasteNum} suffix=" items" decimalPlaces={0} />
+                }
+
                 const CardComponent = (
                   <Card key={stat.title} className="bg-card border-border h-full">
                     <CardContent className="p-6">
@@ -733,24 +758,37 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-2xl font-bold text-foreground">{DisplayValue}</p>
                     </CardContent>
                   </Card>
                 )
 
-                if (stat.title === "Carbon Offset") {
+                if (isCarbon) {
                   return (
                     <TooltipProvider key={stat.title}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="cursor-help">{CardComponent}</div>
+                          <div className="cursor-help transition-transform hover:scale-[1.02]">{CardComponent}</div>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-zinc-900 border-zinc-800 text-zinc-100 p-3">
-                          <p className="font-semibold mb-2 text-green-400">Offset Breakdown</p>
-                          <div className="space-y-1 text-xs">
-                            <div className="flex justify-between gap-4"><span>Plastic:</span> <span>{carbonBreakdown.plastic} kg</span></div>
-                            <div className="flex justify-between gap-4"><span>Metal:</span> <span>{carbonBreakdown.metal} kg</span></div>
-                            <div className="flex justify-between gap-4"><span>Paper:</span> <span>{carbonBreakdown.paper} kg</span></div>
+                        <TooltipContent className="bg-zinc-950 border-zinc-800 text-zinc-100 p-4 shadow-xl max-w-sm">
+                          <p className="font-semibold mb-3 text-green-400 border-b border-zinc-800 pb-2">Carbon Offset Maths</p>
+                          <div className="space-y-2 text-xs font-mono">
+                            <div className="flex justify-between gap-4">
+                              <span className="text-zinc-400">Plastic ({carbonBreakdown.plasticCount} × 0.05)</span>
+                              <span>= {carbonBreakdown.plastic} kg</span>
+                            </div>
+                            <div className="flex justify-between gap-4">
+                              <span className="text-zinc-400">Metal ({carbonBreakdown.metalCount} × 0.15)</span>
+                              <span>= {carbonBreakdown.metal} kg</span>
+                            </div>
+                            <div className="flex justify-between gap-4">
+                              <span className="text-zinc-400">Paper ({carbonBreakdown.paperCount} × 0.01)</span>
+                              <span>= {carbonBreakdown.paper} kg</span>
+                            </div>
+                            <div className="border-t border-zinc-800 pt-2 flex justify-between gap-4 font-bold text-white mt-1">
+                              <span>Total Saved</span>
+                              <span>{carbonOffsetNum.toFixed(2)} kg</span>
+                            </div>
                           </div>
                         </TooltipContent>
                       </Tooltip>
