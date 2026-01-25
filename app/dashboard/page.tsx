@@ -145,6 +145,7 @@ export default function DashboardPage() {
   const [collectionTrends, setCollectionTrends] = useState<CollectionTrend[]>([])
   const [wasteComposition, setWasteComposition] = useState<UIWasteComposition[]>([])
   const [hourlyActivity, setHourlyActivity] = useState<HourlyActivity[]>([])
+  // Trigger Vercel Deployment
   const [scatterData, setScatterData] = useState<any[]>([])
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
