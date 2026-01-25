@@ -103,8 +103,11 @@ const videoTutorials = [
   { title: "API Integration Tutorial", duration: "15:18", thumbnail: "api" },
 ]
 
+import { ChatWidget } from "@/components/support/chat-widget"
+
 export default function SupportPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-background">
@@ -157,17 +160,21 @@ export default function SupportPage() {
         <section className="py-12 px-4 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="grid md:grid-cols-3 gap-6 mb-16">
-              <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer">
-                <CardContent className="p-6 text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Card
+                className="bg-card border-border hover:border-green-500/50 hover:bg-green-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                onClick={() => setIsChatOpen(true)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardContent className="p-6 text-center relative z-10">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                     <MessageCircle className="h-7 w-7 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Live Chat</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Chat with our support team in real-time
+                    Chat with our AI support team in real-time
                   </p>
-                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20">
-                    Available Now
+                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500 group-hover:text-black transition-colors">
+                    Online Now
                   </Badge>
                 </CardContent>
               </Card>
@@ -367,8 +374,8 @@ export default function SupportPage() {
                       {recentUpdates.map((update, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <div className={`p-1.5 rounded-full ${update.type === 'feature' ? 'bg-primary/10' :
-                              update.type === 'improvement' ? 'bg-blue-500/10' :
-                                'bg-yellow-500/10'
+                            update.type === 'improvement' ? 'bg-blue-500/10' :
+                              'bg-yellow-500/10'
                             }`}>
                             {update.type === 'feature' ? (
                               <Zap className="h-3 w-3 text-primary" />
@@ -428,6 +435,7 @@ export default function SupportPage() {
       </main>
 
       <Footer />
+      <ChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   )
 }
