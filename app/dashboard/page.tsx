@@ -1192,14 +1192,6 @@ export default function DashboardPage() {
                         margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
                       >
 
-                        <defs>
-                          <filter id="contourFilter" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-                            <feComponentTransfer in="blur" result="contours">
-                              <feFuncA type="table" tableValues="0 0.3 0.3 0.6 0.6 0.9 0.9 1" />
-                            </feComponentTransfer>
-                          </filter>
-                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={true} vertical={false} />
                         <XAxis
                           type="number"
@@ -1227,7 +1219,7 @@ export default function DashboardPage() {
                           }}
                           width={80}
                         />
-                        <ZAxis type="number" dataKey="z" range={[500, 3000]} name="Count" />
+                        <ZAxis type="number" dataKey="z" range={[0, 100]} name="Count" />
                         <RechartsTooltip
                           cursor={{ strokeDasharray: '3 3' }}
                           content={({ active, payload }) => {
@@ -1252,22 +1244,42 @@ export default function DashboardPage() {
                             return null
                           }}
                         />
-                        <Scatter name="Activity" data={scatterData} fill="#34d399" filter="url(#contourFilter)">
-                          {scatterData.map((entry, index) => {
-                            // Color based on intensity (Z)
-                            // Simple threshold or continuous gradient
+                        <Scatter
+                          name="Activity"
+                          data={scatterData}
+                          shape={(props: any) => {
+                            const { cx, cy, payload } = props
                             const maxZ = Math.max(...scatterData.map((s: any) => s.z)) || 1
-                            const intensity = entry.z / maxZ
+                            const intensity = payload.z / maxZ
 
-                            // Blue(Low) -> Green -> Yellow -> Red(High)
+                            // Color Logic
                             let hue = 210
                             if (intensity > 0) hue = 210 - (intensity * 210)
-
                             const color = `hsl(${Math.max(0, hue)}, 85%, 60%)`
 
-                            return <Cell key={`cell-${index}`} fill={color} stroke="none" fillOpacity={0.8} />
-                          })}
-                        </Scatter>
+                            // Render Hexagon
+                            const r = 8 // Radius
+                            // Points for Flat-topped Hexagon
+                            // x = r * cos(angle), y = r * sin(angle)
+                            // angles: 0, 60, 120, 180, 240, 300
+                            const points = [
+                              [r, 0],
+                              [r / 2, r * 0.866],
+                              [-r / 2, r * 0.866],
+                              [-r, 0],
+                              [-r / 2, -r * 0.866],
+                              [r / 2, -r * 0.866]
+                            ].map(([dx, dy]) => `${cx + dx},${cy + dy}`).join(' ')
+
+                            return (
+                              <polygon
+                                points={points}
+                                fill={color}
+                                opacity={0.85}
+                              />
+                            )
+                          }}
+                        />
                       </ScatterChart>
                     </ResponsiveContainer>
                   </div>
