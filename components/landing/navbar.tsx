@@ -14,6 +14,7 @@ const navItems = [
   { label: "ROI Calculator", href: "/calculator" },
   { label: "Partners", href: "/partners" },
   { label: "Support", href: "/support" },
+  { label: "About", href: "https://www.fostride.com/about" },
 ]
 
 export function Navbar() {
