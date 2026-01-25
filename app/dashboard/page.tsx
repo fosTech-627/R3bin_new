@@ -638,14 +638,30 @@ export default function DashboardPage() {
         // Dynamic is safer for "scattered" look.
 
         const groupedData = new Map<string, number>() // "DateKey|Hour.Minute" -> Count
+        const today = new Date()
+
+        // Helper for formatting "24th Jan 2026"
+        const formatDatePretty = (dateObj: Date) => {
+          const day = dateObj.getDate()
+          const month = dateObj.toLocaleString('default', { month: 'short' })
+          const year = dateObj.getFullYear()
+          const suffix = (day === 1 || day === 21 || day === 31) ? 'st' :
+            (day === 2 || day === 22) ? 'nd' :
+              (day === 3 || day === 23) ? 'rd' : 'th'
+          return `${day}${suffix} ${month} ${year}`
+        }
 
         rawLogs.forEach((log: any) => {
           const dateObj = getLogDate(log.updated_at)
           if (!dateObj) return
+          // Filter Future Dates
+          if (dateObj > today) return
           if (cutoffDate && dateObj < cutoffDate) return
 
           const dKey = getDateKey(dateObj)
-          // Round to nearest 30 mins for cleaner scatter clusters
+          // Store raw date obj via lookup if needed, or re-parse later
+
+          // Round to nearest 30 mins
           const h = dateObj.getHours()
           const m = dateObj.getMinutes() < 30 ? 0 : 30
           const timeVal = h + (m / 60)
@@ -656,19 +672,27 @@ export default function DashboardPage() {
 
         // Convert grouped data to scatter points
         // Sort dates to assign Y index
-        const uniqueDates = Array.from(new Set(Array.from(groupedData.keys()).map(k => k.split('|')[0]))).sort().reverse()
+        // 1. Get all unique dates
+        let allUniqueDates = Array.from(new Set(Array.from(groupedData.keys()).map(k => k.split('|')[0])))
+        // 2. Sort Descending (Newest first)
+        allUniqueDates.sort().reverse()
+        // 3. Take only top 7
+        const uniqueDates = allUniqueDates.slice(0, 7)
 
         groupedData.forEach((count, key) => {
           const [dStr, timeDesc] = key.split('|')
           const timeVal = parseFloat(timeDesc)
           const yIndex = uniqueDates.indexOf(dStr) // 0 is newest
 
+          // Only add points matching the top 7 dates
           if (yIndex !== -1) {
+            const prettyDate = formatDatePretty(new Date(dStr))
+
             scatterPoints.push({
               x: timeVal,
               y: yIndex,
               z: count, // Intensity
-              date: dStr,
+              date: prettyDate, // Use pretty date for display
               hourStr: `${Math.floor(timeVal).toString().padStart(2, '0')}:${(timeVal % 1 * 60).toString().padStart(2, '0')}`
             })
           }
