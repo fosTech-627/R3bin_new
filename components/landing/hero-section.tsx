@@ -10,7 +10,7 @@ const features = [
   {
     icon: Brain,
     label: "AI Vision",
-    description: "99.2% accuracy",
+    description: "50k+ Training Set",
     position: "top-8 -left-4 lg:-left-12",
   },
   {
@@ -42,10 +42,10 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      
+
       {/* Animated grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(52,211,153,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(52,211,153,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      
+
       <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left column - Text content */}
@@ -54,18 +54,18 @@ export function HeroSection() {
               <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm text-primary">AI-Powered Waste Intelligence Platform</span>
             </div>
-            
+
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
               Intelligence at the Source Transforms{" "}
               <span className="text-primary">Waste into Wisdom</span>
             </h1>
-            
+
             <p className="text-lg text-muted-foreground leading-relaxed max-w-xl">
               Every bin becomes a data point for planetary impact. R3Bin combines AI
               segregation, IoT sensors, and real-time analytics to deliver measurable
               sustainability results and ESG accountability.
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 group">
                 View Live Dashboard
@@ -75,12 +75,12 @@ export function HeroSection() {
                 Calculate Your Impact
               </Button>
             </div>
-            
+
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
               <div>
-                <div className="text-2xl font-bold text-primary">94%</div>
-                <div className="text-sm text-muted-foreground">Segregation Accuracy</div>
+                <div className="text-2xl font-bold text-primary">8.1k</div>
+                <div className="text-sm text-muted-foreground">Items Scanned</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-foreground">2.4M</div>
@@ -92,14 +92,14 @@ export function HeroSection() {
               </div>
             </div>
           </div>
-          
+
           {/* Right column - Product showcase */}
           <div className="relative order-1 lg:order-2 flex items-center justify-center py-8 lg:py-0">
             {/* Glowing backdrop */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-64 h-64 lg:w-96 lg:h-96 rounded-full bg-primary/20 blur-[100px] animate-pulse" />
             </div>
-            
+
             {/* Product image container */}
             <div className="relative z-10 group">
               {/* Rotating ring effect */}
@@ -109,7 +109,7 @@ export function HeroSection() {
               <div className="absolute inset-0 -m-16 lg:-m-24 rounded-full border border-primary/10 animate-[spin_30s_linear_infinite_reverse]">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary/50" />
               </div>
-              
+
               {/* Product image */}
               <div className="relative w-64 h-80 sm:w-72 sm:h-96 lg:w-80 lg:h-[28rem] transition-transform duration-500 group-hover:scale-105">
                 <Image
@@ -120,7 +120,7 @@ export function HeroSection() {
                   priority
                 />
               </div>
-              
+
               {/* Interactive feature callouts */}
               {features.map((feature, index) => (
                 <div
@@ -135,8 +135,8 @@ export function HeroSection() {
                 >
                   <div className={cn(
                     "flex items-center gap-3 rounded-xl border bg-card/80 backdrop-blur-md p-3 shadow-lg transition-all duration-300",
-                    activeFeature === index 
-                      ? "border-primary bg-card shadow-primary/20" 
+                    activeFeature === index
+                      ? "border-primary bg-card shadow-primary/20"
                       : "border-border hover:border-primary/50"
                   )}>
                     <div className={cn(
@@ -156,7 +156,7 @@ export function HeroSection() {
                       <div className="text-xs text-muted-foreground whitespace-nowrap">{feature.description}</div>
                     </div>
                   </div>
-                  
+
                   {/* Connecting line */}
                   <div className={cn(
                     "absolute top-1/2 h-px bg-gradient-to-r from-primary/50 to-transparent transition-all duration-300",
@@ -165,7 +165,7 @@ export function HeroSection() {
                 </div>
               ))}
             </div>
-            
+
             {/* Bottom badges */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-4">
               <div className="flex items-center gap-2 rounded-full border border-border bg-card/80 backdrop-blur-md px-4 py-2">

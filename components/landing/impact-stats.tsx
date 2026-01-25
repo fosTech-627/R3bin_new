@@ -64,9 +64,9 @@ export function ImpactStats() {
     },
     {
       icon: Gauge,
-      value: "94.2%",
-      label: "Accuracy",
-      description: "AI segregation precision",
+      value: "50k+",
+      label: "Training Images",
+      description: "Diverse AI dataset",
     },
   ]
 
