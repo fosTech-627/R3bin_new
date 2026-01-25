@@ -64,7 +64,7 @@ export function ImpactStats() {
     },
     {
       icon: Gauge,
-      value: "50k+",
+      value: <><AnimatedNumber value={50} decimalPlaces={0} />k+</>,
       label: "Training Images",
       description: "Diverse AI dataset",
     },

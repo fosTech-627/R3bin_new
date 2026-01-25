@@ -6,6 +6,8 @@ import { ArrowRight, Brain, Wifi, BarChart3, Leaf, Sparkles, Shield } from "luci
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import { AnimatedNumber } from "@/components/ui/animated-number"
+
 const features = [
   {
     icon: Brain,
@@ -79,15 +81,21 @@ export function HeroSection() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
               <div>
-                <div className="text-2xl font-bold text-primary">8.1k</div>
+                <div className="text-2xl font-bold text-primary flex items-baseline">
+                  <AnimatedNumber value={8.1} decimalPlaces={1} />k
+                </div>
                 <div className="text-sm text-muted-foreground">Items Scanned</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">2.4M</div>
+                <div className="text-2xl font-bold text-foreground flex items-baseline">
+                  <AnimatedNumber value={2.4} decimalPlaces={1} />M
+                </div>
                 <div className="text-sm text-muted-foreground">kg Waste Sorted</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">850+</div>
+                <div className="text-2xl font-bold text-foreground flex items-baseline">
+                  <AnimatedNumber value={850} decimalPlaces={0} />+
+                </div>
                 <div className="text-sm text-muted-foreground">Active Bins</div>
               </div>
             </div>
