@@ -1193,9 +1193,15 @@ export default function DashboardPage() {
                       >
                         <defs>
                           <filter id="heatBlur" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-                            {/* Optional: Contrast to firm up edges */}
-                            {/* <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" /> */}
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+                            <feColorMatrix
+                              in="blur"
+                              mode="matrix"
+                              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -10"
+                              result="goo"
+                            />
+                            {/* Composite with source to keep core color if needed, or just use goo */}
+                            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
                           </filter>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={true} vertical={false} />
