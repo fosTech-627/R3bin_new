@@ -1210,10 +1210,10 @@ export default function DashboardPage() {
                           domain={['dataMin', 'dataMax']}
                           stroke="#71717a"
                           fontSize={11}
+                          ticks={Array.from(new Set(scatterData.map((d: any) => d.y)))}
+                          reversed={true}
+                          interval={0}
                           tickFormatter={(val) => {
-                            // Find date string from scatterData
-                            // Since Y is index, we need to map back to date
-                            // We can use the first matching point
                             const point = scatterData.find((d: any) => d.y === val)
                             return point ? point.date : ''
                           }}
