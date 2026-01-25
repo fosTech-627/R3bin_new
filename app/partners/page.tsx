@@ -5,7 +5,7 @@ import React from "react"
 import { useState } from "react"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
-import { 
+import {
   Handshake,
   Building2,
   Wrench,
@@ -28,12 +28,12 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -169,7 +169,7 @@ export default function PartnersPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-20 pb-12">
         {/* Hero Section */}
         <section className="py-20 px-4 lg:px-8 bg-gradient-to-b from-primary/5 to-transparent">
@@ -182,7 +182,7 @@ export default function PartnersPage() {
                 Grow with the Leader in<br />Waste Intelligence
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-                Join our global partner ecosystem and help organizations achieve their 
+                Join our global partner ecosystem and help organizations achieve their
                 sustainability goals while building a profitable business.
               </p>
             </div>
@@ -209,15 +209,15 @@ export default function PartnersPage() {
                 Choose Your Partnership Path
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                We offer multiple partnership models designed to fit your business 
+                We offer multiple partnership models designed to fit your business
                 capabilities and market focus.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               {partnerTypes.map((partner) => (
-                <Card 
-                  key={partner.id} 
+                <Card
+                  key={partner.id}
                   className="bg-card border-border hover:border-primary/50 transition-colors"
                 >
                   <CardHeader>
@@ -288,7 +288,7 @@ export default function PartnersPage() {
                         {story.location}
                       </div>
                     </div>
-                    
+
                     <div className="mb-4">
                       <p className="text-4xl font-bold text-primary">{story.metric}</p>
                       <p className="text-sm text-muted-foreground">{story.description}</p>
@@ -326,7 +326,7 @@ export default function PartnersPage() {
                   Built for Partner Success
                 </h2>
                 <p className="text-muted-foreground mb-8">
-                  Our partner program is designed to help you succeed with comprehensive 
+                  Our partner program is designed to help you succeed with comprehensive
                   support, training, and resources at every stage of your journey.
                 </p>
 
@@ -370,8 +370,8 @@ export default function PartnersPage() {
                       <p className="text-muted-foreground mb-4">
                         Thank you for your interest! Our partner team will contact you within 24 hours.
                       </p>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setFormSubmitted(false)}
                         className="border-border"
                       >
@@ -383,17 +383,17 @@ export default function PartnersPage() {
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label className="text-foreground">First Name</Label>
-                          <Input 
-                            required 
-                            placeholder="John" 
+                          <Input
+                            required
+                            placeholder="John"
                             className="bg-secondary border-border"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-foreground">Last Name</Label>
-                          <Input 
-                            required 
-                            placeholder="Smith" 
+                          <Input
+                            required
+                            placeholder="Smith"
                             className="bg-secondary border-border"
                           />
                         </div>
@@ -401,19 +401,19 @@ export default function PartnersPage() {
 
                       <div className="space-y-2">
                         <Label className="text-foreground">Company Name</Label>
-                        <Input 
-                          required 
-                          placeholder="Acme Corporation" 
+                        <Input
+                          required
+                          placeholder="Acme Corporation"
                           className="bg-secondary border-border"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label className="text-foreground">Work Email</Label>
-                        <Input 
-                          required 
-                          type="email" 
-                          placeholder="john@acme.com" 
+                        <Input
+                          required
+                          type="email"
+                          placeholder="john@acme.com"
                           className="bg-secondary border-border"
                         />
                       </div>
@@ -436,14 +436,14 @@ export default function PartnersPage() {
 
                       <div className="space-y-2">
                         <Label className="text-foreground">Tell us about your business</Label>
-                        <Textarea 
+                        <Textarea
                           placeholder="Describe your company, target market, and why you're interested in partnering with R3Bin..."
                           className="bg-secondary border-border min-h-[100px]"
                         />
                       </div>
 
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         Submit Application
@@ -475,19 +475,19 @@ export default function PartnersPage() {
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <a 
+                  <a
                     href="mailto:partners@fostride.com"
                     className="flex items-center gap-2 text-primary hover:underline"
                   >
                     <Mail className="h-4 w-4" />
                     partners@fostride.com
                   </a>
-                  <a 
+                  <a
                     href="tel:+1-888-R3BIN-01"
                     className="flex items-center gap-2 text-primary hover:underline"
                   >
                     <Phone className="h-4 w-4" />
-                    +1-888-R3BIN-01
+                    +91 9818801050
                   </a>
                 </div>
               </CardContent>

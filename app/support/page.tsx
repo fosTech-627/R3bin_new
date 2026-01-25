@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
-import { 
+import {
   Search,
   Book,
   Video,
@@ -109,7 +109,7 @@ export default function SupportPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-20 pb-12">
         {/* Hero Section with Search */}
         <section className="py-16 px-4 lg:px-8 bg-gradient-to-b from-primary/5 to-transparent">
@@ -123,7 +123,7 @@ export default function SupportPage() {
             <p className="text-muted-foreground mb-8">
               Search our knowledge base or browse categories below
             </p>
-            
+
             {/* Search Bar */}
             <div className="relative max-w-2xl mx-auto">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -140,10 +140,10 @@ export default function SupportPage() {
             <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
               <span className="text-sm text-muted-foreground">Popular:</span>
               {["Setup Guide", "API Docs", "Troubleshooting", "Contact Support"].map((link) => (
-                <Button 
-                  key={link} 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  key={link}
+                  variant="ghost"
+                  size="sm"
                   className="text-primary hover:text-primary hover:bg-primary/10"
                 >
                   {link}
@@ -179,7 +179,7 @@ export default function SupportPage() {
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Phone Support</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Talk to a specialist: +1-888-R3BIN-01
+                    Talk to a specialist: +91 9818801050
                   </p>
                   <Badge variant="outline" className="text-muted-foreground border-border">
                     Mon-Fri, 8AM-8PM ET
@@ -212,7 +212,7 @@ export default function SupportPage() {
                   <h2 className="text-2xl font-bold text-foreground mb-6">Knowledge Base</h2>
                   <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {categories.map((category) => (
-                      <Card 
+                      <Card
                         key={category.id}
                         className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer"
                       >
@@ -241,7 +241,7 @@ export default function SupportPage() {
                   <CardContent>
                     <div className="space-y-1">
                       {popularArticles.map((article, index) => (
-                        <div 
+                        <div
                           key={index}
                           className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
                         >
@@ -279,7 +279,7 @@ export default function SupportPage() {
                   <CardContent>
                     <div className="grid sm:grid-cols-2 gap-4">
                       {videoTutorials.map((video) => (
-                        <div 
+                        <div
                           key={video.title}
                           className="group cursor-pointer"
                         >
@@ -334,7 +334,7 @@ export default function SupportPage() {
                   <CardContent>
                     <div className="space-y-3">
                       {systemStatus.map((service) => (
-                        <div 
+                        <div
                           key={service.name}
                           className="flex items-center justify-between py-2"
                         >
@@ -346,9 +346,9 @@ export default function SupportPage() {
                         </div>
                       ))}
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="w-full mt-4 text-primary hover:text-primary hover:bg-primary/10"
                     >
                       View Status Page
@@ -366,11 +366,10 @@ export default function SupportPage() {
                     <div className="space-y-4">
                       {recentUpdates.map((update, index) => (
                         <div key={index} className="flex items-start gap-3">
-                          <div className={`p-1.5 rounded-full ${
-                            update.type === 'feature' ? 'bg-primary/10' :
-                            update.type === 'improvement' ? 'bg-blue-500/10' :
-                            'bg-yellow-500/10'
-                          }`}>
+                          <div className={`p-1.5 rounded-full ${update.type === 'feature' ? 'bg-primary/10' :
+                              update.type === 'improvement' ? 'bg-blue-500/10' :
+                                'bg-yellow-500/10'
+                            }`}>
                             {update.type === 'feature' ? (
                               <Zap className="h-3 w-3 text-primary" />
                             ) : update.type === 'improvement' ? (
@@ -399,7 +398,7 @@ export default function SupportPage() {
                       <h3 className="font-semibold text-foreground">Enterprise Support</h3>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Get 24/7 priority support with dedicated account management and 
+                      Get 24/7 priority support with dedicated account management and
                       guaranteed response times.
                     </p>
                     <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
