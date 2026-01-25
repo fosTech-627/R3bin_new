@@ -1191,19 +1191,7 @@ export default function DashboardPage() {
                       <ScatterChart
                         margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
                       >
-                        <defs>
-                          <filter id="heatBlur" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
-                            <feColorMatrix
-                              in="blur"
-                              mode="matrix"
-                              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -10"
-                              result="goo"
-                            />
-                            {/* Composite with source to keep core color if needed, or just use goo */}
-                            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-                          </filter>
-                        </defs>
+
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={true} vertical={false} />
                         <XAxis
                           type="number"
@@ -1231,7 +1219,7 @@ export default function DashboardPage() {
                           }}
                           width={80}
                         />
-                        <ZAxis type="number" dataKey="z" range={[200, 1500]} name="Count" />
+                        <ZAxis type="number" dataKey="z" range={[300, 2500]} name="Count" />
                         <RechartsTooltip
                           cursor={{ strokeDasharray: '3 3' }}
                           content={({ active, payload }) => {
@@ -1256,7 +1244,7 @@ export default function DashboardPage() {
                             return null
                           }}
                         />
-                        <Scatter name="Activity" data={scatterData} fill="#34d399" filter="url(#heatBlur)">
+                        <Scatter name="Activity" data={scatterData} fill="#34d399">
                           {scatterData.map((entry, index) => {
                             // Color based on intensity (Z)
                             // Simple threshold or continuous gradient
