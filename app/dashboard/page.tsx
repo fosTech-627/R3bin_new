@@ -1191,6 +1191,13 @@ export default function DashboardPage() {
                       <ScatterChart
                         margin={{ top: 20, right: 20, bottom: 20, left: 10 }}
                       >
+                        <defs>
+                          <filter id="heatBlur" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+                            {/* Optional: Contrast to firm up edges */}
+                            {/* <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" /> */}
+                          </filter>
+                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={true} vertical={false} />
                         <XAxis
                           type="number"
@@ -1218,7 +1225,7 @@ export default function DashboardPage() {
                           }}
                           width={80}
                         />
-                        <ZAxis type="number" dataKey="z" range={[100, 1000]} name="Count" />
+                        <ZAxis type="number" dataKey="z" range={[200, 1500]} name="Count" />
                         <RechartsTooltip
                           cursor={{ strokeDasharray: '3 3' }}
                           content={({ active, payload }) => {
@@ -1243,7 +1250,7 @@ export default function DashboardPage() {
                             return null
                           }}
                         />
-                        <Scatter name="Activity" data={scatterData} fill="#34d399">
+                        <Scatter name="Activity" data={scatterData} fill="#34d399" filter="url(#heatBlur)">
                           {scatterData.map((entry, index) => {
                             // Color based on intensity (Z)
                             // Simple threshold or continuous gradient
@@ -1256,7 +1263,7 @@ export default function DashboardPage() {
 
                             const color = `hsl(${Math.max(0, hue)}, 85%, 60%)`
 
-                            return <Cell key={`cell-${index}`} fill={color} stroke={color} fillOpacity={0.4} />
+                            return <Cell key={`cell-${index}`} fill={color} stroke="none" fillOpacity={0.8} />
                           })}
                         </Scatter>
                       </ScatterChart>
