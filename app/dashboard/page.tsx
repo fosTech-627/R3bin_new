@@ -1218,7 +1218,7 @@ export default function DashboardPage() {
                           }}
                           width={80}
                         />
-                        <ZAxis type="number" dataKey="z" range={[50, 400]} name="Count" />
+                        <ZAxis type="number" dataKey="z" range={[100, 1000]} name="Count" />
                         <RechartsTooltip
                           cursor={{ strokeDasharray: '3 3' }}
                           content={({ active, payload }) => {
@@ -1256,7 +1256,7 @@ export default function DashboardPage() {
 
                             const color = `hsl(${Math.max(0, hue)}, 85%, 60%)`
 
-                            return <Cell key={`cell-${index}`} fill={color} stroke={color} fillOpacity={0.6} />
+                            return <Cell key={`cell-${index}`} fill={color} stroke={color} fillOpacity={0.4} />
                           })}
                         </Scatter>
                       </ScatterChart>
