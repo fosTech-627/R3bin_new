@@ -21,7 +21,7 @@ const footerLinks = {
     { label: "Case Studies", href: "#" },
   ],
   Company: [
-    { label: "About Fostride", href: "#" },
+    { label: "About Fostride", href: "https://www.fostride.com/about" },
     { label: "Careers", href: "#" },
     { label: "Contact", href: "#" },
     { label: "Press", href: "#" },
