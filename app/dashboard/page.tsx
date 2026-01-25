@@ -1219,7 +1219,7 @@ export default function DashboardPage() {
                           }}
                           width={80}
                         />
-                        <ZAxis type="number" dataKey="z" range={[300, 2500]} name="Count" />
+                        <ZAxis type="number" dataKey="z" range={[0, 100]} name="Count" />
                         <RechartsTooltip
                           cursor={{ strokeDasharray: '3 3' }}
                           content={({ active, payload }) => {
@@ -1244,22 +1244,35 @@ export default function DashboardPage() {
                             return null
                           }}
                         />
-                        <Scatter name="Activity" data={scatterData} fill="#34d399">
-                          {scatterData.map((entry, index) => {
-                            // Color based on intensity (Z)
-                            // Simple threshold or continuous gradient
+                        <Scatter
+                          name="Activity"
+                          data={scatterData}
+                          shape={(props: any) => {
+                            const { cx, cy, payload } = props
                             const maxZ = Math.max(...scatterData.map((s: any) => s.z)) || 1
-                            const intensity = entry.z / maxZ
+                            const intensity = payload.z / maxZ
 
-                            // Blue(Low) -> Green -> Yellow -> Red(High)
+                            // Color Logic
                             let hue = 210
                             if (intensity > 0) hue = 210 - (intensity * 210)
-
                             const color = `hsl(${Math.max(0, hue)}, 85%, 60%)`
 
-                            return <Cell key={`cell-${index}`} fill={color} stroke="none" fillOpacity={0.8} />
-                          })}
-                        </Scatter>
+                            // Render Rectangle (Grid look)
+                            // Adjust Width/Height to approximate the grid slot size
+                            // This requires tuning based on chart width, or fixed size
+                            return (
+                              <rect
+                                x={cx - 5}
+                                y={cy - 10}
+                                width={10}
+                                height={20}
+                                fill={color}
+                                opacity={0.9}
+                                rx={2}
+                              />
+                            )
+                          }}
+                        />
                       </ScatterChart>
                     </ResponsiveContainer>
                   </div>
