@@ -11,6 +11,28 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Fostride',
+            url: 'https://www.fostride.com',
+            logo: 'https://www.fostride.com/images/fostride-logo-new.svg',
+            sameAs: [
+              'https://twitter.com/fostride',
+              'https://www.linkedin.com/company/fostride',
+              'https://www.instagram.com/fostride'
+            ],
+            contactPoint: {
+              '@type': 'ContactPoint',
+              telephone: '+91-9818801050',
+              contactType: 'customer service'
+            }
+          })
+        }}
+      />
       <HeroSection />
       <ImpactStats />
       <FeaturesSection />
