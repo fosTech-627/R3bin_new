@@ -54,9 +54,17 @@ import {
 } from "@/components/ui/tooltip"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { supabase } from "@/lib/supabase"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, format } from "date-fns"
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils"
 
 // Types matching Supabase tables
 type CollectionTrend = {
@@ -137,6 +145,7 @@ const FALLBACK_COLORS = ["#34d399", "#60a5fa", "#fbbf24", "#a78bfa", "#f472b6"]
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("7d")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -402,7 +411,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData()
-  }, [timeRange])
+  }, [timeRange, dateRange])
 
   const fetchData = async () => {
     console.log('DEBUG: Starting fetchData...')
@@ -421,7 +430,6 @@ export default function DashboardPage() {
         // A. Aggregate for Trends (Group by Date)
         const dailyStats: Record<string, CollectionTrend> = {}
         const todayStr = new Date().toISOString().split('T')[0]
-        console.log('DEBUG: Aggregating logs. timeRange param:', timeRange)
 
         rawLogs.forEach((log: any) => {
           // Normalize date. Handle ISO (YYYY-MM-DD...) and Custom (YY-MM-DD_...)
@@ -429,9 +437,6 @@ export default function DashboardPage() {
 
           try {
             if (log.updated_at) {
-              // DEBUG Trace
-              // if (dailyStatsCount < 3) console.log(`DEBUG: Processing log ${log.updated_at}, timeRange=${timeRange}`)
-
               let dateObj: Date | null = null
 
               if (log.updated_at.includes('T')) {
@@ -546,13 +551,30 @@ export default function DashboardPage() {
           case '7d': cutoffDate.setDate(now.getDate() - 7); break;
           case '30d': cutoffDate.setDate(now.getDate() - 30); break;
           case '90d': cutoffDate.setDate(now.getDate() - 90); break;
+          case 'custom': cutoffDate = null; break; // Handled separately
           case 'all': cutoffDate = null; break; // No cutoff
           default: cutoffDate.setDate(now.getDate() - 7);
         }
 
-        const filteredTrends = cutoffDate
-          ? trendsData.filter(d => new Date(d.date) >= cutoffDate)
-          : trendsData // Show all if no cutoff
+        const filteredTrends = trendsData.filter(d => {
+          if (timeRange === 'custom' && dateRange?.from) {
+            const dDate = new Date(d.date)
+            // Set times to midnight for comparison to avoid issues if needed, 
+            // but trendsData dates might be "YYYY-MM-DD" or "YYYY-MM-DD HH:mm"
+            // If d.date is "YYYY-MM-DD", new Date() is UTC midnight or local?
+            // trendsData date keys are either YYYY-MM-DD (ISO) or YYYY-MM-DD HH:00 (24h)
+            // To be safe, compare timestamps or date parts.
+
+            // Simple comparison
+            const from = dateRange.from
+            const to = dateRange.to || dateRange.from
+            return dDate >= from && dDate <= new Date(to.getTime() + 86400000) // End of 'to' day inclusive
+          }
+          if (cutoffDate) {
+            return new Date(d.date) >= cutoffDate
+          }
+          return true
+        })
 
         setCollectionTrends(filteredTrends)
 
@@ -981,8 +1003,48 @@ export default function DashboardPage() {
                     <SelectItem value="30d">Last 30 days</SelectItem>
                     <SelectItem value="90d">Last 90 days</SelectItem>
                     <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="custom">Custom Date</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {timeRange === 'custom' && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] justify-start text-left font-normal border-border bg-card",
+                          !dateRange && "text-muted-foreground"
+                        )}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                      <CalendarComponent
+                        initialFocus
+                        mode="range"
+                        defaultMonth={dateRange?.from}
+                        selected={dateRange}
+                        onSelect={setDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
                 <Button variant="outline" size="icon" className="border-border bg-transparent" onClick={fetchData}>
                   <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 </Button>
