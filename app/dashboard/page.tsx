@@ -428,28 +428,55 @@ export default function DashboardPage() {
 
           try {
             if (log.updated_at) {
+              let dateObj: Date | null = null
+
               if (log.updated_at.includes('T')) {
                 // Standard ISO format
-                dateKey = log.updated_at.split('T')[0]
+                const d = new Date(log.updated_at)
+                if (!isNaN(d.getTime())) {
+                  dateObj = d
+                }
               } else {
-                // Custom format: 26-01-17_16-15-29 (YY-MM-DD_...)
-                // Split by underscore or space to get date part
-                const datePart = log.updated_at.split(/[_ ]/)[0]
-                const parts = datePart.split('-')
+                // Custom format: 26-01-17_16-15-29 (YY-MM-DD_HH-mm-ss)
+                const parts = log.updated_at.split(/[_ ]/)
+                const dateParts = parts[0] ? parts[0].split('-') : []
+                const timeParts = parts[1] ? parts[1].split('-') : []
 
-                if (parts.length >= 3) {
-                  // Assuming YY-MM-DD
-                  let year = parseInt(parts[0])
-                  let month = parseInt(parts[1])
-                  let day = parseInt(parts[2])
+                if (dateParts.length >= 3) {
+                  let year = parseInt(dateParts[0])
+                  let month = parseInt(dateParts[1])
+                  let day = parseInt(dateParts[2])
+
+                  // Time parts
+                  let hour = 0, min = 0, sec = 0
+                  if (timeParts.length >= 3) {
+                    hour = parseInt(timeParts[0])
+                    min = parseInt(timeParts[1])
+                    sec = parseInt(timeParts[2])
+                  }
 
                   // Adjust 2-digit year to 4-digit (Assuming 20xx)
                   if (year < 100) year += 2000
 
                   // Create Date object (Month is 0-indexed)
-                  // Use UTC to avoid timezone shifts affecting the "Day" bucket
-                  const dateObj = new Date(Date.UTC(year, month - 1, day))
-                  dateKey = dateObj.toISOString().split('T')[0]
+                  dateObj = new Date(year, month - 1, day, hour, min, sec)
+                }
+              }
+
+              if (dateObj) {
+                if (timeRange === '24h') {
+                  const y = dateObj.getFullYear()
+                  const m = String(dateObj.getMonth() + 1).padStart(2, '0')
+                  const d = String(dateObj.getDate()).padStart(2, '0')
+                  const h = String(dateObj.getHours()).padStart(2, '0')
+                  dateKey = `${y}-${m}-${d} ${h}:00`
+                } else {
+                  // For larger ranges, group by Day (YYYY-MM-DD)
+                  // Use local date to keep compatible with the dateObj
+                  const y = dateObj.getFullYear()
+                  const m = String(dateObj.getMonth() + 1).padStart(2, '0')
+                  const d = String(dateObj.getDate()).padStart(2, '0')
+                  dateKey = `${y}-${m}-${d}`
                 }
               }
             }
@@ -484,14 +511,27 @@ export default function DashboardPage() {
         if (trendsData.length === 1) {
           const singleDate = new Date(trendsData[0].date)
           const prevDate = new Date(singleDate)
-          prevDate.setDate(singleDate.getDate() - 1)
-          const prevDateStr = prevDate.toISOString().split('T')[0]
-
-          trendsData = [
-            { date: prevDateStr, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 },
-            ...trendsData
-          ]
+          if (timeRange === '24h') {
+            prevDate.setHours(singleDate.getHours() - 1)
+            const y = prevDate.getFullYear()
+            const m = String(prevDate.getMonth() + 1).padStart(2, '0')
+            const d = String(prevDate.getDate()).padStart(2, '0')
+            const h = String(prevDate.getHours()).padStart(2, '0')
+            const prevDateStr = `${y}-${m}-${d} ${h}:00`
+            trendsData = [
+              { date: prevDateStr, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 },
+              ...trendsData
+            ]
+          } else {
+            prevDate.setDate(singleDate.getDate() - 1)
+            const prevDateStr = prevDate.toISOString().split('T')[0]
+            trendsData = [
+              { date: prevDateStr, metal: 0, plastic: 0, paper: 0, mixed_waste: 0 },
+              ...trendsData
+            ]
+          }
         }
+
 
         // Filter trends based on selected ID (timeRange)
         const now = new Date()
@@ -1055,7 +1095,18 @@ export default function DashboardPage() {
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                        <XAxis dataKey="date" stroke="#71717a" fontSize={12} />
+                        <XAxis
+                          dataKey="date"
+                          stroke="#71717a"
+                          fontSize={12}
+                          tickFormatter={(val) => {
+                            // If formatted as date+time (contains :), show time only
+                            if (val && val.includes(':') && val.includes(' ')) {
+                              return val.split(' ')[1]
+                            }
+                            return val
+                          }}
+                        />
                         <YAxis stroke="#71717a" fontSize={12} />
                         <RechartsTooltip
                           content={({ active, payload, label }) => {
