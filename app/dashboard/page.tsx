@@ -421,6 +421,7 @@ export default function DashboardPage() {
         // A. Aggregate for Trends (Group by Date)
         const dailyStats: Record<string, CollectionTrend> = {}
         const todayStr = new Date().toISOString().split('T')[0]
+        console.log('DEBUG: Aggregating logs. timeRange param:', timeRange)
 
         rawLogs.forEach((log: any) => {
           // Normalize date. Handle ISO (YYYY-MM-DD...) and Custom (YY-MM-DD_...)
@@ -428,6 +429,9 @@ export default function DashboardPage() {
 
           try {
             if (log.updated_at) {
+              // DEBUG Trace
+              // if (dailyStatsCount < 3) console.log(`DEBUG: Processing log ${log.updated_at}, timeRange=${timeRange}`)
+
               let dateObj: Date | null = null
 
               if (log.updated_at.includes('T')) {
