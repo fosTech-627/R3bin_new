@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 import {
@@ -146,6 +146,7 @@ const FALLBACK_COLORS = ["#34d399", "#60a5fa", "#fbbf24", "#a78bfa", "#f472b6"]
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("7d")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const lastNotificationTime = useRef<number>(0)
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -883,6 +884,39 @@ export default function DashboardPage() {
         if (b2) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Paper Bin Full (${binId})`, time: 'Just now' })
         if (b3) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Metal Bin Full (${binId})`, time: 'Just now' })
         if (b4) generatedAlerts.push({ id: idCounter++, type: 'critical', message: `Mixed Waste Bin Full (${binId})`, time: 'Just now' })
+
+        // Check for notifications
+        const fullBins: string[] = []
+        if (b1) fullBins.push('Plastic')
+        if (b2) fullBins.push('Paper')
+        if (b3) fullBins.push('Metal')
+        if (b4) fullBins.push('Mixed Waste')
+
+        if (fullBins.length > 0) {
+          const COOLDOWN = 60 * 60 * 1000 // 1 hour
+          if (Date.now() - lastNotificationTime.current > COOLDOWN) {
+            console.log('Sending alert notification...')
+            // Fire and forget - Use user prefs if available
+            const userPhone = typeof window !== 'undefined' ? localStorage.getItem('user_phone') : null
+            const userEmail = typeof window !== 'undefined' ? localStorage.getItem('user_email') : null
+
+            fetch('/api/send-alert', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                binId: binId,
+                wasteType: fullBins.join(', '),
+                location: 'Main Campus',
+                userPhone, // Pass these to API
+                userEmail
+              })
+            }).then(() => console.log('Alert sent successfully'))
+              .catch(err => console.error('Failed to send alert', err))
+
+            lastNotificationTime.current = Date.now()
+
+          }
+        }
 
         setAlerts(generatedAlerts)
       } else {

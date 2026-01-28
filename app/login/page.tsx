@@ -16,6 +16,7 @@ export default function LoginPage() {
     const router = useRouter()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [phone, setPhone] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -35,6 +36,12 @@ export default function LoginPage() {
             }
 
             if (data.session) {
+                // Store user preferences for alerts
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('user_phone', phone)
+                    localStorage.setItem('user_email', email) // Explicitly store for alerts
+                }
+
                 router.push("/dashboard")
                 router.refresh()
             }
@@ -114,15 +121,17 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleLogin} className="space-y-4 mt-4">
+                        <form onSubmit={handleLogin} className="space-y-4 mt-6">
                             {error && (
                                 <Alert variant="destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
+
+                            {/* Email */}
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">Email (for alerts)</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -133,13 +142,31 @@ export default function LoginPage() {
                                     className="bg-background border-input"
                                 />
                             </div>
+
+                            {/* Phone Number */}
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number (for alerts)</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="+91 98188 01050"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    required
+                                    className="bg-background border-input"
+                                />
+                            </div>
+
+
+
+                            {/* Password */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="password">Password</Label>
                                     <Link
                                         href="#"
                                         className="text-sm text-primary hover:underline"
-                                        onClick={(e) => e.preventDefault()} // Placeholder implementation
+                                        onClick={(e) => e.preventDefault()}
                                     >
                                         Forgot password?
                                     </Link>
@@ -153,19 +180,23 @@ export default function LoginPage() {
                                     className="bg-background border-input"
                                 />
                             </div>
+
                             <Button type="submit" className="w-full" disabled={loading}>
                                 {loading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Signing in...
+                                        Accessing Dashboard...
                                     </>
                                 ) : (
-                                    "Sign in"
+                                    "Login & Start Monitoring"
                                 )}
                             </Button>
                         </form>
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4 text-center text-sm text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
+                            * Your contact details will be used to send critical alerts for the specified Bin ID.
+                        </div>
                         <div>
                             Don&apos;t have an account?{" "}
                             <Link href="/signup" className="text-primary hover:underline">
