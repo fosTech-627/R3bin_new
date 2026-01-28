@@ -15,11 +15,23 @@ import {
   Download,
   Filter,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  Bell
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -159,6 +171,26 @@ export default function DashboardPage() {
   const [scatterData, setScatterData] = useState<any[]>([])
   const [binStatusData, setBinStatusData] = useState<UIBinStatus[]>([])
   const [alerts, setAlerts] = useState<UIAlert[]>([])
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [settingsPhone, setSettingsPhone] = useState("")
+  const [settingsEmail, setSettingsEmail] = useState("")
+
+  useEffect(() => {
+    // Load user prefs
+    if (typeof window !== 'undefined') {
+      setSettingsPhone(localStorage.getItem('user_phone') || "")
+      setSettingsEmail(localStorage.getItem('user_email') || "")
+    }
+  }, [])
+
+  const saveSettings = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user_phone', settingsPhone)
+      localStorage.setItem('user_email', settingsEmail)
+    }
+    setIsSettingsOpen(false)
+    // Optional: Show toast or confirmation
+  }
 
   useEffect(() => {
     console.log('DEBUG: scatterData', scatterData)
@@ -1086,6 +1118,51 @@ export default function DashboardPage() {
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>
+
+                <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" className="border-border bg-transparent">
+                      <Bell className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Alert Settings</DialogTitle>
+                      <DialogDescription>
+                        Configure where you want to receive critical alerts for bin status.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="phone" className="text-right">
+                          Phone
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={settingsPhone}
+                          onChange={(e) => setSettingsPhone(e.target.value)}
+                          placeholder="+91..."
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">
+                          Email
+                        </Label>
+                        <Input
+                          id="email"
+                          value={settingsEmail}
+                          onChange={(e) => setSettingsEmail(e.target.value)}
+                          placeholder="alerts@example.com"
+                          className="col-span-3"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={saveSettings}>Save changes</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 

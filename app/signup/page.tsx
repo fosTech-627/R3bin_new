@@ -16,6 +16,7 @@ export default function SignupPage() {
     const router = useRouter()
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
     const [password, setPassword] = useState("")
     const [productCode, setProductCode] = useState("")
 
@@ -52,6 +53,12 @@ export default function SignupPage() {
                 // If not, we might need to signIn first, but usually signUp returns a session if email confirm is off.
 
                 if (authData.session) {
+                    // Store for prompts
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('user_phone', phone)
+                        localStorage.setItem('user_email', email)
+                    }
+
                     const { data: claimData, error: claimError } = await supabase
                         .rpc('claim_product_code', { input_code: productCode })
 
@@ -173,6 +180,19 @@ export default function SignupPage() {
                                     placeholder="name@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="bg-background border-input"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number (for alerts)</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="+91 98188 01050"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
                                     required
                                     className="bg-background border-input"
                                 />
