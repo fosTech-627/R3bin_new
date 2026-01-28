@@ -27,8 +27,8 @@ export async function POST(request: Request) {
             sms: 'skipped',
         };
 
-        const targetEmail = userEmail || EMAIL_TO;
-        const targetPhone = userPhone || ADMIN_PHONE;
+        const targetEmail = userEmail;
+        const targetPhone = userPhone;
 
         // 1. Send Email
         if (SMTP_HOST && SMTP_USER && SMTP_PASS && targetEmail) {
