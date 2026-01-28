@@ -15,6 +15,13 @@ const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 const ADMIN_PHONE = process.env.ALERT_PHONE_NUMBER; // Admin phone to receive SMS
 
+console.log("📧 Alert Route Module Loaded. Env Vars:", {
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASS_SET: !!process.env.SMTP_PASS,
+    EMAIL_FROM: process.env.EMAIL_FROM
+});
+
 export async function POST(request: Request) {
     console.log("🔥 API ROUTE /api/send-alert HIT 🔥");
     try {
