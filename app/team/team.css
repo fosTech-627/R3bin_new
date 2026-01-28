@@ -11,7 +11,7 @@ html {
     --accent-green: #0C8346;
     --accent-green-hover: #085e32;
     --highlight: #0C8346;
-    --font-main: 'Unbounded', sans-serif;
+    --font-main: var(--font-unbounded), sans-serif;
     --max-width: 1280px;
 }
 
@@ -80,7 +80,7 @@ body.about-page::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('pattern-bg.png');
+    background-image: url('/images/team/pattern-bg.png');
     background-size: 100% auto;
     background-repeat: no-repeat;
     background-position: center top;
@@ -134,7 +134,7 @@ body.about-page::after {
     position: relative;
 
     /* Background Image */
-    background-image: url('about-header-bg.png');
+    background-image: url('/images/team/about-header-bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
