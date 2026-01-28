@@ -1177,6 +1177,7 @@ export default function DashboardPage() {
                             const emailStatus = data.results?.email || 'unknown'
                             if (emailStatus === 'sent') alert("✅ Email Sent Successfully!")
                             else if (emailStatus === 'failed_send') alert("❌ Email Failed! Check server logs.")
+                            else if (emailStatus === 'skipped_no_email') alert("⚠️ No Email Provided! Please enter an email in the settings.")
                             else if (emailStatus === 'skipped_config_missing') alert("⚠️ Credentials missing in .env.local")
                             else alert(`Result: Email ${emailStatus}`)
                           } else {

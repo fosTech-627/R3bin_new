@@ -70,8 +70,11 @@ export async function POST(request: Request) {
                 console.error("NOdeMailer Error:", err)
                 results.email = 'failed_send';
             }
+        } else if (!targetEmail) {
+            console.log('Missing target email address.');
+            results.email = 'skipped_no_email';
         } else {
-            console.log('Email configuration missing or incomplete:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS, targetEmail });
+            console.log('Email configuration missing or incomplete:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS });
             results.email = 'skipped_config_missing';
         }
 
