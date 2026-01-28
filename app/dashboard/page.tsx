@@ -1121,7 +1121,7 @@ export default function DashboardPage() {
 
                 <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="border-border bg-transparent">
+                    <Button variant="outline" size="icon" className="border-border bg-transparent ml-2">
                       <Bell className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
