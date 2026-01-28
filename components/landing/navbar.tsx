@@ -15,7 +15,6 @@ const navItems = [
   { label: "Partners", href: "/partners" },
   { label: "Support", href: "/support" },
   { label: "About", href: "https://www.fostride.com/about" },
-  { label: "Our Team", href: "/team" },
 ]
 
 export function Navbar() {
