@@ -10,11 +10,11 @@ import { supabase } from "@/lib/supabase"
 const navItems = [
   { label: "Home", href: "/" },
   { label: "R3Bin Suite", href: "/products" },
-  { label: "Our Team", href: "/team" },
   { label: "Live Analytics", href: "/dashboard" },
   { label: "ROI Calculator", href: "/calculator" },
   { label: "Partners", href: "/partners" },
   { label: "Support", href: "/support" },
+  { label: "About", href: "https://www.fostride.com/about" },
 ]
 
 export function Navbar() {
