@@ -1,0 +1,1563 @@
+/* MIGRATED GLOBALS FROM STYLE.CSS */
+html {
+    scroll-behavior: smooth;
+}
+
+:root {
+    --bg-color: #050505;
+    --card-bg: #0A0A0A;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-green: #0C8346;
+    --accent-green-hover: #085e32;
+    --highlight: #0C8346;
+    --font-main: 'Unbounded', sans-serif;
+    --max-width: 1280px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    /* Background pattern logic is handled in specific rules below */
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-main);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+ul {
+    list-style: none;
+}
+
+/* Utilities */
+.highlight {
+    color: var(--highlight);
+    position: relative;
+    display: inline-block;
+}
+
+/* END MIGRATED GLOBALS */
+
+/* About Page Specific Styles */
+
+/* 
+   Background: Vertical Green Pillars / Curtain Effect 
+   Matches the reference image with vertical gradient columns.
+*/
+body.about-page {
+    background-color: #050505;
+    position: relative;
+}
+
+/* Override the green pattern with gray #171717 */
+body.about-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('pattern-bg.png');
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-attachment: fixed;
+    /* Filter to convert green to gray */
+    filter: grayscale(100%) brightness(0.35) contrast(1.1);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Spotlight gradient overlay - makes pattern visible only at top-center */
+body.about-page::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Spotlight effect: Transparent at top-center, fading to dark */
+    background: radial-gradient(circle at 50% 25%,
+            rgba(5, 5, 5, 0.2) 0%,
+            rgba(5, 5, 5, 0.8) 40%,
+            #050505 70%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Wrapper for the Hero Section */
+.about-hero {
+    width: 100%;
+    /* 
+       Padding: 90px top, 40px left/right, 40px bottom
+    */
+    padding: 90px 40px 40px 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* The Main Hero Card (Image + Text) */
+.about-hero-inner {
+    /* Fixed Specs - no margin, spacing handled by parent padding */
+    width: 100%;
+    height: 510px;
+
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+
+    /* Background Image */
+    background-image: url('about-header-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* Layout for Text: Pushed to bottom */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+
+    /* Text Spacing from Bottom */
+    padding-bottom: 60px;
+
+    /* Shadow for depth */
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark Overlay on Hero Image so text pops */
+.about-hero-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+    z-index: 1;
+}
+
+/* Hero Text Styling */
+.about-hero-inner h1 {
+    position: relative;
+    z-index: 2;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 50px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.highlight-text {
+    color: #0C8346;
+    display: block;
+    /* Forces new line if needed, or inline if br used */
+    font-size: 4rem;
+    /* Slightly larger for emphasis */
+    margin-top: 5px;
+}
+
+/* "About our Company" Section - Two Column Layout */
+.about-content {
+    /* Match hero section padding: 40px on sides */
+    padding: 60px 40px 100px 40px;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+/* Updated: 2026-01-27 16:01 - Match hero padding */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    /* No additional padding - parent handles it */
+    padding: 0;
+    margin: 0;
+}
+
+.about-left {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.about-left h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+    margin-bottom: 60px;
+    color: white;
+    line-height: 1.2;
+    margin-left: 0;
+}
+
+.about-left p {
+    font-size: 18px;
+    font-weight: 300;
+    color: #ffffff;
+    line-height: 1.8;
+    max-width: 500px;
+}
+
+/* Accordion Styles */
+.about-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.accordion-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50px;
+    /* Pill shape */
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s;
+}
+
+.accordion-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: white;
+    font-family: var(--font-main);
+    font-size: 18px;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s;
+}
+
+.header-text {
+    transition: all 0.3s;
+    display: inline-block;
+    /* Required for transform */
+}
+
+/* Hover Effect: Text turns green, moves right, and becomes light weight */
+.accordion-item:hover .header-text {
+    color: #1a9d5c;
+    /* Green text on hover */
+    transform: translateX(10px);
+    /* Move slightly right */
+    font-weight: 300;
+    /* Light font weight */
+}
+
+/* Icon Box Styling */
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.icon {
+    font-size: 24px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s;
+}
+
+/* Hover Effect: Icon Box turns green, Icon turns black */
+.accordion-item:hover .icon-box {
+    background-color: #1a9d5c;
+    /* Green button background */
+}
+
+.accordion-item:hover .icon {
+    color: #000000;
+    /* Black icon */
+}
+
+/* Active State */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding: 0 30px;
+}
+
+/* Active State Styling */
+.accordion-item.active .accordion-content {
+    max-height: 1000px;
+    /* Increased from 300px to fit long text */
+    padding: 0 30px 30px 30px;
+}
+
+/* Active State Styling */
+.accordion-item.active .header-text {
+    color: #1a9d5c;
+    /* Green text when active */
+    font-weight: 300;
+    /* Maintain light weight if desired, or regular? User implied 'when showing info', usually implies 'selected' state. Let's keep consistency with hover if they want visual feedback. */
+}
+
+/* Ensure background doesn't change on active, only text */
+.accordion-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    /* Keep dark background */
+    border-color: rgba(255, 255, 255, 0.2);
+    /* Slightly lighter border */
+}
+
+/* Active State Styling */
+.accordion-item.active .header-text {
+    color: #1a9d5c;
+    /* Green text when active */
+    font-weight: 300;
+}
+
+/* Ensure background doesn't change on active, only text */
+.accordion-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    /* Keep dark background */
+    border-color: rgba(255, 255, 255, 0.2);
+    /* Slightly lighter border */
+}
+
+.accordion-item.active .icon {
+    transform: rotate(45deg);
+}
+
+/* Founder Section Styling */
+.founder-section {
+    padding: 100px 40px !important;
+    /* Restored to 40px as standard */
+    background-color: #050505;
+    position: relative;
+    z-index: 2;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.founder-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Headings & Intro (Top Section) */
+.founder-container h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 40px;
+    /* Adjusted to 40px as requested */
+    color: white;
+    margin-bottom: 40px;
+    font-weight: 400;
+    margin-left: 0 !important;
+    /* Ensure heading starts at edge */
+    padding-left: 0 !important;
+}
+
+.founder-intro .highlight {
+    background-color: transparent !important;
+    /* Ensure no bg interference */
+    display: inline !important;
+    /* CRITICAL FIX: prevent wrapping entire phrases */
+    color: #ffffff;
+    font-weight: 300;
+    /* Thicker weight to match ref */
+}
+
+.founder-intro {
+    font-size: 24px;
+    color: #888;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    font-weight: 200;
+    margin: 0 -40px 80px -40px !important;
+    /* Break out of parent padding */
+    padding: 0 40px !important;
+    /* Re-apply padding internally */
+    max-width: none !important;
+    width: auto !important;
+    /* Fill the expanded space */
+    text-align: justify !important;
+    /* Force neat alignment */
+    text-justify: inter-word;
+    /* Ensure better spacing */
+    hyphens: auto;
+    /* Prevent gaps */
+    box-sizing: border-box;
+    display: block !important;
+}
+
+/* Content Grid (Bottom Section) */
+.founder-content-grid {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 80px;
+    align-items: flex-end;
+    /* Align bio bottom with image bottom or similar */
+}
+
+/* Founder Image Composition */
+.founder-image-wrapper {
+    position: relative;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+/* Green Circle Background */
+.founder-bg-circle {
+    position: absolute;
+    bottom: 0;
+    width: 400px;
+    height: 450px;
+    background-color: #0C8346;
+    border-radius: 50% 50% 0 0;
+    z-index: 1;
+    transform: translateY(50px);
+}
+
+/* Founder Image */
+.founder-img {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(100%) contrast(1.1);
+}
+
+/* Name Overlay */
+.founder-name-overlay {
+    position: absolute;
+    bottom: 0;
+    /* Flush with bottom */
+    left: 0;
+    z-index: 3;
+    font-family: 'Unbounded', sans-serif;
+    line-height: 0.85;
+    font-size: 64px;
+    display: flex;
+    flex-direction: column;
+}
+
+.name-green {
+    color: #0C8346;
+    font-weight: 800;
+}
+
+.name-white {
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+/* Gradient Fade for seamless blending if needed */
+.founder-fade-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(to top, #050505 0%, transparent 100%);
+    z-index: 2;
+    /* below name, above image bottom */
+    pointer-events: none;
+}
+
+/* Right Column Details */
+.founder-details {
+    padding-bottom: 20px;
+    /* Alignment adjustment */
+}
+
+.founder-bio {
+    font-size: 15px;
+    color: #999;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 100%;
+}
+
+/* Skills Tags */
+.founder-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.skill-tag {
+    background: #1a1a1a;
+    color: #ccc;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #2a2a2a;
+}
+
+.skill-tag .icon {
+    color: #0C8346;
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Socials & Featured Groups */
+.founder-socials-group,
+.founder-featured-group {
+    margin-bottom: 30px;
+}
+
+.label {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn-pill {
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-pill.green {
+    background: #108548;
+    /* Slightly brighter green for button */
+    color: #000000;
+    font-weight: 300;
+}
+
+.btn-pill.green:hover {
+    background: #15ad5d;
+}
+
+.btn-pill.outline {
+    background: transparent;
+    border: 1px solid #333;
+    color: white;
+    font-weight: 300;
+}
+
+.btn-pill.outline:hover {
+    border-color: #666;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .founder-grid {
+        grid-template-columns: 1fr;
+        gap: 60px;
+    }
+
+    .founder-image-wrapper {
+        height: 500px;
+        align-items: flex-end;
+    }
+
+    .founder-bio {
+        max-width: 100%;
+    }
+}
+
+.accordion-content p {
+    font-size: 15px;
+    color: #a0a0a0;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .about-hero-inner {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding-top: 140px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .about-hero-inner h1 {
+        font-size: 2rem;
+    }
+
+    .highlight-text {
+        font-size: 2.5rem;
+    }
+
+    .about-content h2 {
+        font-size: 2.5rem;
+    }
+}
+
+/* PROCESS SECTION STYLES - REFINED */
+.process-section {
+    padding: 100px 40px;
+    background: transparent;
+    position: relative;
+    z-index: 2;
+}
+
+/* Scroll Snap for smooth "1 card per scroll" effect */
+html {
+    scroll-snap-type: y proximity;
+}
+
+.process-header {
+    text-align: center;
+    margin-bottom: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.process-tag {
+    background: rgba(255, 255, 255, 0.05);
+    color: #1a9d5c;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #333;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+}
+
+.process-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 48px;
+    font-weight: 400;
+    color: #fff;
+    margin: 0;
+}
+
+.process-timeline {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Removed gap to ensure continuous line connectivity */
+}
+
+.process-step {
+    display: flex;
+    gap: 72px;
+    position: relative;
+    padding-top: 30px;
+    height: 447px;
+    box-sizing: border-box;
+    padding-bottom: 0;
+
+    /* Animation Initial State */
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Ease-out quart for smooth slide */
+
+    scroll-snap-align: center;
+    scroll-margin-top: 50px;
+}
+
+.process-step.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Timeline (Left side) */
+.step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    flex-shrink: 0;
+    padding-top: 5px;
+    position: relative;
+}
+
+.step-number {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 56px;
+    color: #d4af37;
+    /* Initial Gold */
+    font-weight: 700;
+    line-height: 1;
+    z-index: 2;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    transition: all 0.8s ease;
+    /* Smooth transition for color/glow */
+}
+
+/* Active Glow State */
+.process-step.visible .step-number {
+    color: #d4af37;
+    /* Remain Gold */
+    text-shadow: 0 0 30px rgba(0, 166, 81, 0.8), 0 0 60px rgba(0, 166, 81, 0.4);
+    /* Green Glow */
+}
+
+.step-line {
+    position: absolute;
+    top: 70px;
+    bottom: 0;
+    /* Extend fully to connect with next step */
+    width: 1px;
+    background: #d4af37;
+    /* Solid gold to maintain visibility over long scroll */
+    z-index: 1;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.3;
+}
+
+.process-step:last-child .step-line {
+    display: none;
+}
+
+/* 
+   Info Tile Styling
+   Matches the reference: Dark rounded card, pill badge, clean typography.
+*/
+.step-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 30px;
+    padding: 20px 30px 30px 30px;
+    width: 600px;
+    height: 221px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    box-sizing: border-box;
+    /* transition: transform 0.3s ease; */
+}
+
+
+
+/* Step Badge/Pill */
+.step-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1A1A1A;
+    color: #00A651;
+    font-size: 11px;
+    /* Slightly smaller to fit comfortably */
+    font-weight: 700;
+    width: 66px;
+    height: 50px;
+    padding: 0;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    font-family: sans-serif;
+    text-transform: uppercase;
+}
+
+/* Card Title */
+.step-card h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    color: #FFFFFF;
+    margin: 0 0 10px 0;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* Card Description */
+.step-card p {
+    font-family: sans-serif;
+    /* Clean readable font */
+    font-size: 16px;
+    color: #999999;
+    /* Muted gray text */
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 400;
+    max-width: 100%;
+}
+
+/* Mobile Responsiveness for Process */
+@media (max-width: 768px) {
+    .process-step {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .step-left {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        padding-bottom: 20px;
+    }
+
+    .step-line {
+        display: none;
+    }
+
+    .step-card {
+        padding: 40px 30px;
+        border-radius: 30px;
+    }
+
+    .step-card h3 {
+        font-size: 24px;
+    }
+}
+
+/* TEAM/SQUAD SECTION STYLES */
+.team-section {
+    padding: 100px 40px;
+    /* Exact 40px side padding requested */
+    width: 100%;
+    max-width: none;
+    /* Override any global max-width */
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.team-header {
+    text-align: center;
+    margin-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.team-tag {
+    background: rgba(255, 255, 255, 0.05);
+    color: #00A651;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #333;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.team-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 56px;
+    font-weight: 400;
+    color: #fff;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.team-subtitle {
+    font-family: sans-serif;
+    font-size: 16px;
+    color: #999;
+    max-width: 600px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* Center the bottom row items */
+    gap: 8px;
+    /* Strict 8px gap */
+    width: 100%;
+    margin: 0 auto;
+}
+
+.team-card {
+    /* 3 items per row constraint: 100% width minus 2 gaps (16px) divided by 3 */
+    width: calc((100% - 16px) / 3);
+    height: 574px;
+    border-radius: 30px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    /* User requested 5% white visibility */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 12px;
+    /* Space for the floating footer */
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-upper {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    background: transparent;
+    /* inherit from card */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* Watermark Text (Huge Green Background Text) */
+/* Watermark Text (Huge Green Background Text) */
+/* Watermark Text (Huge Green Background Text) */
+.watermark-text {
+    position: absolute;
+    top: 15px;
+    /* Adjusted to sit nicely at top */
+    left: 20px;
+    /* Moved right to prevent cutting off 'S' */
+    text-align: left;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 72px;
+    /* Reduced to match ref */
+    font-weight: 800;
+    color: #00A651;
+    opacity: 1;
+    z-index: 1;
+    line-height: 0.9;
+    letter-spacing: -3px;
+    white-space: nowrap;
+}
+
+/* Overlay Text (White small text) */
+.overlay-text {
+    position: absolute;
+    top: 72px;
+    /* Perfectly placed under watermark tail */
+    right: 20px;
+    width: auto;
+    text-align: right;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    /* Sharper, smaller */
+    font-weight: 700;
+    color: #FFFFFF;
+    z-index: 3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ... existing styles ... */
+
+.card-lower h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    color: #fff;
+    margin: 0 0 5px 0;
+    font-weight: 500;
+}
+
+.image-area {
+    width: 100%;
+    height: 90%;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* Placeholder Styling to simulate B&W Cutout */
+/* Placeholder/Image Styling */
+.team-placeholder {
+    width: 100%;
+    /* Fill width */
+    height: 100%;
+    /* Fill height */
+    object-fit: cover;
+    /* Crop nicely */
+    object-position: top center;
+    /* Focus on face */
+    filter: grayscale(100%) contrast(1.2) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    /* B&W Effect + Shadow */
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.team-card:hover .team-placeholder {
+    filter: grayscale(0%) contrast(1.1) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    transform: scale(1.02);
+}
+
+/* Plus Button */
+.plus-btn {
+    position: absolute;
+    bottom: -24px;
+    /* Center on the seam */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #000;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.team-card:hover .plus-btn {
+    background: #00A651;
+    color: white;
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.card-lower {
+    background: #161616;
+    margin: 0 12px;
+    /* Floating pill effect */
+    padding: 30px 10px 20px 10px;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 4;
+    height: 80px;
+    /* Fixed height for footer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-lower h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    color: #fff;
+    margin: 0 0 5px 0;
+    font-weight: 500;
+}
+
+.card-lower span {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Grid */
+@media (max-width: 1200px) {
+    .team-card {
+        width: 45%;
+    }
+}
+
+@media (max-width: 768px) {
+    .team-card {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+/* ACTIVE STATE STYLES FOR TEAM CARD */
+.team-card .active-shape {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 85%;
+    /* Cover mostly bottom area */
+    background: #00A651;
+    border-radius: 50% 50% 0 0 / 25% 25% 0 0;
+    /* Elliptical top */
+    z-index: 1;
+    /* Behind image */
+    transform: translateY(110%);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+}
+
+.team-card.active .active-shape {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.team-card .social-row {
+    position: absolute;
+    bottom: 20px;
+    /* Positioned above footer */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 10;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s ease 0.1s;
+    /* Slight delay */
+    pointer-events: none;
+}
+
+.team-card.active .social-row {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.team-card.active .plus-btn {
+    opacity: 0;
+    transform: translate(-50%, 50%) scale(0.5);
+    pointer-events: none;
+}
+
+.team-card.active .team-placeholder {
+    filter: grayscale(0%) contrast(1.1) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    /* Restore color */
+}
+
+/* Social Buttons */
+.social-btn {
+    width: 40px;
+    height: 40px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.social-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-3px);
+}
+
+.social-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* FAQ Section */
+.faq-section {
+    padding: 100px 40px;
+    background: transparent;
+    /* Updated to reveal global background */
+    color: #fff;
+    text-align: center;
+    position: relative;
+    /* Ensure z-index works */
+    z-index: 2;
+}
+
+.faq-header {
+    margin-bottom: 60px;
+    /* Kept strict 60px gap */
+}
+
+.faq-tag {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 50px;
+    color: #00A651;
+    font-size: 12px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-family: 'Unbounded', sans-serif;
+}
+
+.faq-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 40px;
+    /* Updated from 48px */
+    font-weight: 400;
+    /* Updated from 600 (regular) */
+    line-height: 1.2;
+    margin: 0;
+}
+
+.faq-container {
+    max-width: 1000px;
+    /* Updated from 900px */
+    width: 100%;
+    /* Ensure it fills */
+    margin: 0 auto;
+    text-align: left;
+}
+
+.faq-item {
+    background: rgba(255, 255, 255, 0.05);
+    /* Match about tile */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Match about tile */
+    border-radius: 30px;
+    /* Kept as requested */
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    /* Added frosted glass effect */
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.faq-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.accordion-header {
+    height: 56px;
+    /* Fixed height as requested */
+    padding: 0 30px;
+    /* Horizontal padding only */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.accordion-header span {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #eee;
+    padding-right: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Hover: Text turns green and moves right */
+.faq-item:hover .accordion-header span {
+    color: #1a9d5c;
+    transform: translateX(10px);
+    font-weight: 300;
+    /* Slightly lighter */
+}
+
+/* Active: Text stays green */
+.faq-item.active .accordion-header span {
+    color: #1a9d5c;
+}
+
+.icon-box {
+    width: 32px;
+    height: 32px;
+    background: #00A651;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Rotate icon when active */
+.faq-item.active .icon-box {
+    transform: rotate(180deg);
+    background: #00a651;
+    color: #000;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    background: transparent;
+    /* Updated to allow parent blur to show */
+}
+
+.faq-item.active .accordion-content {
+    /* Script should handle max-height, but basic fallback */
+    padding: 0 30px 24px 30px;
+    /* CSS-only fallback for height if script fails to set exact px */
+    /* But script clears maxHeight to null which removes inline style. 
+       If I set max-height here to something large, it will animate to that.
+       Better to let JS calculate usually, but for simple MVP: */
+    display: block;
+    max-height: 500px;
+    /* robust fallback */
+}
+
+.accordion-content p {
+    color: #aaa;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* FOOTER STYLES (MATCHING REFERENCE) */
+footer.about-footer {
+    padding: 100px 40px 65px 40px;
+    /* Updated padding */
+    background: transparent;
+    position: relative;
+    z-index: 10;
+    max-width: 1300px;
+    margin: 0 auto;
+    font-family: 'Unbounded', sans-serif;
+    height: 100vh;
+    /* Fixed height of 100vh */
+    box-sizing: border-box;
+    /* Ensure padding is included */
+}
+
+/* Top Container (Contact + Links) */
+.footer-top-container {
+    background: #111111;
+    border-radius: 40px;
+    padding: 20px 30px 20px 20px;
+    /* Updated padding: T20 R30 B20 L20 */
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    /* Gap between blocks */
+    height: 372px;
+    /* Fixed height */
+    box-sizing: border-box;
+}
+
+/* Left Column: Contact Cards */
+.footer-contact-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Minimum gap */
+    width: 350px;
+    height: 100%;
+    justify-content: space-between;
+    /* Distributed properly */
+}
+
+.footer-contact-card {
+    background: #1a1a1a;
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    height: 104px;
+    /* Updated height from 110px */
+    flex-shrink: 0;
+    /* Prevent shrinking */
+}
+
+.footer-icon {
+    color: #00A651;
+    display: flex;
+    align-content: center;
+}
+
+/* Specific SVG sizing for footer icons */
+.footer-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.footer-contact-card span {
+    color: #eee;
+    font-size: 15px;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 300;
+}
+
+/* Right Column: Links */
+.footer-links-column {
+    display: flex;
+    gap: 100px;
+    padding-right: 60px;
+}
+
+.footer-link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-link-group h4 {
+    color: #00A651;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+}
+
+.footer-link-group a {
+    color: #bbb;
+    text-decoration: none;
+    font-size: 14px;
+    font-family: sans-serif;
+    /* Simpler font for links typically */
+    font-weight: 300;
+    transition: color 0.3s;
+}
+
+.footer-link-group a:hover {
+    color: #fff;
+}
+
+/* Bottom Container (Socials + Copyright) */
+.footer-bottom-container {
+    background: #111111;
+    border-radius: 40px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    text-align: center;
+    height: 203px;
+    /* Fixed height */
+    box-sizing: border-box;
+    justify-content: center;
+    /* Ensure content is centered */
+}
+
+.footer-socials {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.follow-text {
+    color: #00A651;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.social-icons-footer {
+    display: flex;
+    gap: 12px;
+}
+
+.social-btn-footer {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ccc;
+    transition: all 0.3s;
+}
+
+.social-btn-footer:hover {
+    background: #00A651;
+    /* Green accent */
+    color: #fff;
+    border-color: #00A651;
+}
+
+.footer-copyright {
+    color: #fff;
+    font-size: 13px;
+    font-family: sans-serif;
+    /* Clean sans for copyright */
+    font-weight: 400;
+}
+
+.green-text {
+    color: #00A651;
+}
+
+/* Responsive Footer */
+@media (max-width: 900px) {
+    .footer-top-container {
+        flex-direction: column;
+        padding: 40px;
+        gap: 40px;
+    }
+
+    .footer-contact-column {
+        width: 100%;
+    }
+
+    .footer-links-column {
+        flex-direction: column;
+        /* Stack link columns on mobile? Or keep row? */
+        gap: 40px;
+    }
+}
