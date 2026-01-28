@@ -62,8 +62,10 @@ export async function POST(request: Request) {
             });
             results.email = 'sent';
         } else {
-            console.log('Email configuration missing, skipping email alert.');
+            console.log('Email configuration missing or incomplete:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS, targetEmail });
+            results.email = 'skipped_config_missing';
         }
+
 
         // 2. Send SMS
         if (TWILIO_SID && TWILIO_TOKEN && TWILIO_FROM && targetPhone) {

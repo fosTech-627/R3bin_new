@@ -1158,7 +1158,27 @@ export default function DashboardPage() {
                         />
                       </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="flex justify-between sm:justify-between">
+                      <Button type="button" variant="secondary" onClick={() => {
+                        const loadingToast = console.log("Sending test alert...") // You could add toast if available
+                        fetch('/api/send-alert', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            binId: 'TEST-BIN',
+                            wasteType: 'Test',
+                            location: 'Test Location',
+                            userPhone: settingsPhone,
+                            userEmail: settingsEmail
+                          })
+                        }).then(async (res) => {
+                          const data = await res.json()
+                          if (data.success) alert("Test Alert Sent! Check your email/phone.")
+                          else alert("Failed: " + (data.error || "Unknown error"))
+                        }).catch(err => alert("Error: " + err.message))
+                      }}>
+                        Send Test Alert
+                      </Button>
                       <Button onClick={saveSettings}>Save changes</Button>
                     </DialogFooter>
                   </DialogContent>
