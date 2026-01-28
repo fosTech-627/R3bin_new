@@ -6,7 +6,7 @@ import twilio from 'twilio';
 const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = process.env.SMTP_PORT || 587;
 const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_PASS = process.env.SMTP_PASS?.replace(/\s/g, ''); // Remove spaces from app password
 const EMAIL_FROM = process.env.EMAIL_FROM || '"R3Bin Alert" <alerts@fostride.com>';
 const EMAIL_TO = process.env.ALERT_EMAIL_TO; // Admin email to receive alerts
 
@@ -16,6 +16,7 @@ const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 const ADMIN_PHONE = process.env.ALERT_PHONE_NUMBER; // Admin phone to receive SMS
 
 export async function POST(request: Request) {
+    console.log("🔥 API ROUTE /api/send-alert HIT 🔥");
     try {
         const { binId, wasteType, location, userEmail, userPhone } = await request.json();
 
