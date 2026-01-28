@@ -32,6 +32,7 @@ export async function POST(request: Request) {
 
         // 1. Send Email
         if (SMTP_HOST && SMTP_USER && SMTP_PASS && targetEmail) {
+            console.log(`Attempting to send email to ${targetEmail} via ${SMTP_HOST}...`);
             const transporter = nodemailer.createTransport({
                 host: SMTP_HOST,
                 port: Number(SMTP_PORT),
@@ -40,14 +41,17 @@ export async function POST(request: Request) {
                     user: SMTP_USER,
                     pass: SMTP_PASS,
                 },
+                debug: true, // Show debug output
+                logger: true // Log to console
             });
 
-            await transporter.sendMail({
-                from: EMAIL_FROM,
-                to: targetEmail,
-                subject: `[ACTION REQUIRED] Bin Full Alert - ${location}`,
-                text: messageBody,
-                html: `
+            try {
+                const info = await transporter.sendMail({
+                    from: `"${EMAIL_FROM.split('<')[0].replace(/"/g, '').trim()}" <${SMTP_USER}>`, // Force sender to match auth user to avoid filtering
+                    to: targetEmail,
+                    subject: `[ACTION REQUIRED] Bin Full Alert - ${location}`,
+                    text: messageBody,
+                    html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
             <h2 style="color: #ef4444;">🚨 Bin Capacity Critical</h2>
             <p><strong>Bin ID:</strong> ${binId}</p>
@@ -59,8 +63,12 @@ export async function POST(request: Request) {
             <p style="font-size: 12px; color: #64748b;">Fostride R3Bin Smart Management System</p>
           </div>
         `,
-            });
-            results.email = 'sent';
+                });
+                results.email = 'sent';
+            } catch (err: any) {
+                console.error("NOdeMailer Error:", err)
+                results.email = 'failed_send';
+            }
         } else {
             console.log('Email configuration missing or incomplete:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS, targetEmail });
             results.email = 'skipped_config_missing';
