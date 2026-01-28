@@ -1173,8 +1173,15 @@ export default function DashboardPage() {
                           })
                         }).then(async (res) => {
                           const data = await res.json()
-                          if (data.success) alert("Test Alert Sent! Check your email/phone.")
-                          else alert("Failed: " + (data.error || "Unknown error"))
+                          if (data.success) {
+                            const emailStatus = data.results?.email || 'unknown'
+                            if (emailStatus === 'sent') alert("✅ Email Sent Successfully!")
+                            else if (emailStatus === 'failed_send') alert("❌ Email Failed! Check server logs.")
+                            else if (emailStatus === 'skipped_config_missing') alert("⚠️ Credentials missing in .env.local")
+                            else alert(`Result: Email ${emailStatus}`)
+                          } else {
+                            alert("Failed: " + (data.error || "Unknown error"))
+                          }
                         }).catch(err => alert("Error: " + err.message))
                       }}>
                         Send Test Alert
