@@ -174,12 +174,23 @@ export default function DashboardPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsPhone, setSettingsPhone] = useState("")
   const [settingsEmail, setSettingsEmail] = useState("")
+  const [isConfigured, setIsConfigured] = useState(true) // Assume configured until checked
 
   useEffect(() => {
     // Load user prefs
     if (typeof window !== 'undefined') {
-      setSettingsPhone(localStorage.getItem('user_phone') || "")
-      setSettingsEmail(localStorage.getItem('user_email') || "")
+      const phone = localStorage.getItem('user_phone') || ""
+      const email = localStorage.getItem('user_email') || ""
+
+      setSettingsPhone(phone)
+      setSettingsEmail(email)
+
+      // Check if configured
+      if (!phone || !email) {
+        setIsConfigured(false)
+        // Auto-open with a slight delay for better UX
+        setTimeout(() => setIsSettingsOpen(true), 1000)
+      }
     }
   }, [])
 
@@ -189,6 +200,7 @@ export default function DashboardPage() {
       localStorage.setItem('user_email', settingsEmail)
     }
     setIsSettingsOpen(false)
+    setIsConfigured(true)
     // Optional: Show toast or confirmation
   }
 
@@ -925,7 +937,7 @@ export default function DashboardPage() {
         if (b4) fullBins.push('Mixed Waste')
 
         if (fullBins.length > 0) {
-          const COOLDOWN = 60 * 60 * 1000 // 1 hour
+          const COOLDOWN = 30 * 60 * 1000 // 30 minutes
           if (Date.now() - lastNotificationTime.current > COOLDOWN) {
             console.log('Sending alert notification...')
             // Fire and forget - Use user prefs if available
@@ -1121,8 +1133,11 @@ export default function DashboardPage() {
 
                 <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="border-border bg-transparent ml-2">
+                    <Button variant="outline" size="icon" className={`border-border bg-transparent ml-2 relative ${!isConfigured ? 'animate-pulse border-red-400 text-red-400' : ''}`}>
                       <Bell className="h-4 w-4" />
+                      {!isConfigured && (
+                        <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-background transform translate-x-1/4 -translate-y-1/4"></span>
+                      )}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
