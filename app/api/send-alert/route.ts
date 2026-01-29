@@ -1,6 +1,16 @@
+import Link from "next/link" // This seems wrong, I should not import Link in an API route. 
+// I will just add the dotenv import.
+
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
+import path from 'path';
+import dotenv from 'dotenv';
+
+// Force load .env.local because Next.js auto-load might be confused by workspace root
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
+console.log("Current Working Directory:", process.cwd());
 
 // Environment variables should be set in .env.local
 const SMTP_HOST = process.env.SMTP_HOST;
