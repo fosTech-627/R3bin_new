@@ -83,7 +83,7 @@ export async function POST(request: Request) {
                 results.email = 'sent';
             } catch (err: any) {
                 console.error("NOdeMailer Error:", err)
-                results.email = 'failed_send';
+                results.email = `failed_send: ${err.message}`;
             }
         } else if (!targetEmail) {
             console.log('Missing target email address.');
