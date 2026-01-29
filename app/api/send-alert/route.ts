@@ -81,13 +81,17 @@ export async function POST(request: Request) {
             console.log('Missing target email address.');
             results.email = 'skipped_no_email';
         } else {
-            console.log("❌ CONFIG CHECK FAILED:");
-            console.log("- SMTP_HOST:", !!SMTP_HOST, SMTP_HOST);
-            console.log("- SMTP_USER:", !!SMTP_USER, SMTP_USER);
-            console.log("- SMTP_PASS:", !!SMTP_PASS, "Length:", SMTP_PASS ? SMTP_PASS.length : 0);
-            console.log("- targetEmail:", !!targetEmail, targetEmail);
+            const missingVars = [];
+            if (!SMTP_HOST) missingVars.push('SMTP_HOST');
+            if (!SMTP_USER) missingVars.push('SMTP_USER');
+            if (!SMTP_PASS) missingVars.push('SMTP_PASS');
 
-            results.email = 'skipped_config_missing';
+            console.log("❌ CONFIG CHECK FAILED. Missing:", missingVars.join(', '));
+            console.log("- SMTP_HOST:", !!SMTP_HOST);
+            console.log("- SMTP_USER:", !!SMTP_USER);
+            console.log("- SMTP_PASS Length:", SMTP_PASS ? SMTP_PASS.length : 0);
+
+            results.email = `skipped_config_missing: ${missingVars.join(', ')}`;
         }
 
 
