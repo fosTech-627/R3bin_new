@@ -1,6 +1,3 @@
-import Link from "next/link" // This seems wrong, I should not import Link in an API route. 
-// I will just add the dotenv import.
-
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
@@ -12,30 +9,28 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 console.log("Current Working Directory:", process.cwd());
 
-// Environment variables should be set in .env.local
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = process.env.SMTP_PORT || 587;
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS?.replace(/\s/g, ''); // Remove spaces from app password
-const EMAIL_FROM = process.env.EMAIL_FROM || '"R3Bin Alert" <alerts@fostride.com>';
-const EMAIL_TO = process.env.ALERT_EMAIL_TO; // Admin email to receive alerts
-
-const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
-const ADMIN_PHONE = process.env.ALERT_PHONE_NUMBER; // Admin phone to receive SMS
-
-console.log("📧 Alert Route Module Loaded. Env Vars:", {
-    SMTP_HOST: process.env.SMTP_HOST,
-    SMTP_USER: process.env.SMTP_USER,
-    SMTP_PASS_SET: !!process.env.SMTP_PASS,
-    EMAIL_FROM: process.env.EMAIL_FROM
-});
-
 export async function POST(request: Request) {
     console.log("🔥 API ROUTE /api/send-alert HIT 🔥");
     try {
         const { binId, wasteType, location, userEmail, userPhone } = await request.json();
+
+        // Access environment variables directly at runtime inside the function
+        const SMTP_HOST = process.env.SMTP_HOST;
+        const SMTP_PORT = process.env.SMTP_PORT || 587;
+        const SMTP_USER = process.env.SMTP_USER;
+        const SMTP_PASS = process.env.SMTP_PASS?.replace(/\s/g, ''); // Remove spaces from app password
+        let EMAIL_FROM = process.env.EMAIL_FROM || '"R3Bin Alert" <alerts@fostride.com>';
+
+        const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
+        const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+        const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
+
+        console.log("📧 Alert Route Env Check:", {
+            SMTP_HOST: SMTP_HOST,
+            SMTP_USER: SMTP_USER,
+            SMTP_PASS_SET: !!SMTP_PASS,
+            EMAIL_FROM: EMAIL_FROM
+        });
 
         const timestamp = new Date().toLocaleString();
         const messageBody = `🚨 CRITICAL ALERT: ${wasteType} Bin is FULL at ${location} (Bin ID: ${binId}). Please schedule collection immediately. Time: ${timestamp}`;
@@ -64,8 +59,11 @@ export async function POST(request: Request) {
             });
 
             try {
+                // Ensure from address formats are correct
+                const cleanFrom = EMAIL_FROM.replace(/'/g, "").replace(/"/g, '');
+
                 const info = await transporter.sendMail({
-                    from: `"${EMAIL_FROM.split('<')[0].replace(/"/g, '').trim()}" <${SMTP_USER}>`, // Force sender to match auth user to avoid filtering
+                    from: cleanFrom,
                     to: targetEmail,
                     subject: `[ACTION REQUIRED] Bin Full Alert - ${location}`,
                     text: messageBody,
@@ -97,9 +95,7 @@ export async function POST(request: Request) {
             if (!SMTP_PASS) missingVars.push('SMTP_PASS');
 
             console.log("❌ CONFIG CHECK FAILED. Missing:", missingVars.join(', '));
-            console.log("- SMTP_HOST:", !!SMTP_HOST);
-            console.log("- SMTP_USER:", !!SMTP_USER);
-            console.log("- SMTP_PASS Length:", SMTP_PASS ? SMTP_PASS.length : 0);
+            console.log("Full Environment Keys (filtered):", Object.keys(process.env).filter(k => k.startsWith('SMTP') || k.startsWith('NEXT')));
 
             results.email = `skipped_config_missing: ${missingVars.join(', ')}`;
         }
