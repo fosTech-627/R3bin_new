@@ -938,7 +938,15 @@ export default function DashboardPage() {
 
         if (fullBins.length > 0) {
           const COOLDOWN = 30 * 60 * 1000 // 30 minutes
-          if (Date.now() - lastNotificationTime.current > COOLDOWN) {
+
+          // Check localStorage for the last alert time to persist cooldown across reloads
+          const lastAlertStr = typeof window !== 'undefined' ? localStorage.getItem('last_bin_alert_timestamp') : null
+          const lastAlertTime = lastAlertStr ? parseInt(lastAlertStr) : 0
+
+          // Check in-memory ref as fallback or optimization
+          const lastTime = Math.max(lastAlertTime, lastNotificationTime.current)
+
+          if (Date.now() - lastTime > COOLDOWN) {
             console.log('Sending alert notification...')
             // Fire and forget - Use user prefs if available
             const userPhone = typeof window !== 'undefined' ? localStorage.getItem('user_phone') : null
@@ -957,7 +965,11 @@ export default function DashboardPage() {
             }).then(() => console.log('Alert sent successfully'))
               .catch(err => console.error('Failed to send alert', err))
 
-            lastNotificationTime.current = Date.now()
+            const now = Date.now()
+            lastNotificationTime.current = now
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('last_bin_alert_timestamp', now.toString())
+            }
 
           }
         }
