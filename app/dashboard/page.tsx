@@ -456,6 +456,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData()
+
+    // Auto-refresh every 1 minute
+    const interval = setInterval(() => {
+      console.log("Auto-refreshing dashboard data...")
+      fetchData()
+    }, 60000)
+
+    return () => clearInterval(interval)
   }, [timeRange, dateRange])
 
   const fetchData = async () => {
