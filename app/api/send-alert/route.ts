@@ -81,7 +81,12 @@ export async function POST(request: Request) {
             console.log('Missing target email address.');
             results.email = 'skipped_no_email';
         } else {
-            console.log('Email configuration missing or incomplete:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS });
+            console.log("❌ CONFIG CHECK FAILED:");
+            console.log("- SMTP_HOST:", !!SMTP_HOST, SMTP_HOST);
+            console.log("- SMTP_USER:", !!SMTP_USER, SMTP_USER);
+            console.log("- SMTP_PASS:", !!SMTP_PASS, "Length:", SMTP_PASS ? SMTP_PASS.length : 0);
+            console.log("- targetEmail:", !!targetEmail, targetEmail);
+
             results.email = 'skipped_config_missing';
         }
 
