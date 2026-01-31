@@ -6,7 +6,6 @@ import Image from "next/image"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
-import { ModeToggle } from "@/components/mode-toggle"
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -67,7 +66,6 @@ export function Navbar() {
         </div>
 
         <div className="hidden lg:flex lg:items-center lg:gap-4">
-          <ModeToggle />
           {session ? (
             <>
               <Link href="/dashboard">
@@ -103,9 +101,6 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-background border-b border-border">
           <div className="px-4 py-4 space-y-4">
-            <div className="flex justify-end mb-2">
-              <ModeToggle />
-            </div>
             {navItems.map((item) => (
               <Link
                 key={item.label}
