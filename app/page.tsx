@@ -3,6 +3,7 @@ import { WelcomeHero } from "@/components/welcome/welcome-hero"
 import { WelcomeInteractiveFeatures } from "@/components/welcome/welcome-interactive-features"
 import { WelcomeBuilding } from "@/components/welcome/welcome-building"
 import { WelcomeEngine } from "@/components/welcome/welcome-engine"
+import { WelcomeDeploymentEnvironments } from "@/components/welcome/welcome-deployment-environments"
 import { WelcomePositioning } from "@/components/welcome/welcome-positioning"
 import { WelcomeFooter } from "@/components/welcome/welcome-footer"
 
@@ -36,6 +37,7 @@ export default function Home() {
       <WelcomeInteractiveFeatures />
       <WelcomeBuilding />
       <WelcomeEngine />
+      <WelcomeDeploymentEnvironments />
       <WelcomePositioning />
       <WelcomeFooter />
     </main>

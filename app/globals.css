@@ -216,4 +216,78 @@
   .animate-scalePulse {
     animation: scalePulse 2s ease-in-out infinite;
   }
+
+  /* Parallax animation */
+  @keyframes parallaxMove {
+    0% {
+      transform: translateY(0px);
+    }
+    100% {
+      transform: translateY(-40px);
+    }
+  }
+
+  .parallax-fast {
+    animation: parallaxMove 8s ease-in-out infinite;
+  }
+
+  .parallax-slow {
+    animation: parallaxMove 12s ease-in-out infinite;
+  }
+
+  /* Grid line animation */
+  @keyframes gridShift {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 60px 60px;
+    }
+  }
+
+  .animate-grid {
+    animation: gridShift 20s linear infinite;
+  }
+
+  /* Card lift effect on hover */
+  @keyframes cardLift {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), 
+                box-shadow 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.25);
+  }
+
+  /* Scanline effect for tech feel */
+  @keyframes scanlines {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 0 8px;
+    }
+  }
+
+  .scanline-effect {
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.03),
+        rgba(0, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+    animation: scanlines 8s linear infinite;
+  }
 }
