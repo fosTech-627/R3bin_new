@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
+import Link from "next/link"
 import { 
   Brain, 
   Wifi, 
@@ -129,6 +130,16 @@ export default function ProductsPage() {
       <Navbar />
       
       <main className="pt-20">
+        {/* Breadcrumb */}
+        <div className="px-4 lg:px-8 py-4 border-b border-border">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex items-center gap-2 text-sm">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Fostride</Link>
+              <span className="text-muted-foreground">/</span>
+              <span className="text-foreground font-medium">R3Bin Suite</span>
+            </div>
+          </div>
+        </div>
         {/* Hero Section */}
         <section className="py-20 px-4 lg:px-8">
           <div className="mx-auto max-w-7xl text-center">

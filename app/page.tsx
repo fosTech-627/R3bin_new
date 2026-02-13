@@ -1,16 +1,14 @@
-import { Navbar } from "@/components/landing/navbar"
-import { HeroSection } from "@/components/landing/hero-section"
-import { ImpactStats } from "@/components/landing/impact-stats"
-import { FeaturesSection } from "@/components/landing/features-section"
-import { DashboardPreview } from "@/components/landing/dashboard-preview"
-import { UseCasesSection } from "@/components/landing/use-cases-section"
-import { CTASection } from "@/components/landing/cta-section"
-import { Footer } from "@/components/landing/footer"
+import { WelcomeNavbar } from "@/components/welcome/welcome-navbar"
+import { WelcomeHero } from "@/components/welcome/welcome-hero"
+import { WelcomeBuilding } from "@/components/welcome/welcome-building"
+import { WelcomeEngine } from "@/components/welcome/welcome-engine"
+import { WelcomePositioning } from "@/components/welcome/welcome-positioning"
+import { WelcomeFooter } from "@/components/welcome/welcome-footer"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
+    <main className="min-h-screen bg-black">
+      <WelcomeNavbar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -33,13 +31,11 @@ export default function Home() {
           })
         }}
       />
-      <HeroSection />
-      <ImpactStats />
-      <FeaturesSection />
-      <DashboardPreview />
-      <UseCasesSection />
-      <CTASection />
-      <Footer />
+      <WelcomeHero />
+      <WelcomeBuilding />
+      <WelcomeEngine />
+      <WelcomePositioning />
+      <WelcomeFooter />
     </main>
   )
 }

@@ -10,11 +10,11 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fostride.com'),
   title: {
-    default: 'Fostride R3Bin - AI-Powered Smart Waste Intelligence',
-    template: '%s | Fostride R3Bin'
+    default: 'Fostride - Waste Intelligence Infrastructure for India',
+    template: '%s | Fostride'
   },
-  description: 'Transform waste into actionable intelligence with R3Bin. AI-powered segregation, real-time analytics, and ESG compliance for campuses, corporates, and smart cities.',
-  keywords: ['Smart Waste Management', 'AI Waste Segregation', 'Sustainability Tech', 'ESG Reporting', 'Smart City IoT', 'Carbon Footprint Reduction'],
+  description: 'Building W.I.S.E. — Waste Intelligent Sorting Engine. An engine-first climate technology company transforming waste management with AI and machine learning.',
+  keywords: ['Waste Intelligence', 'Climate Tech', 'AI Waste Management', 'Sustainability Infrastructure', 'W.I.S.E Engine', 'Smart Waste'],
   authors: [{ name: 'Fostride Inc.' }],
   creator: 'Fostride Inc.',
   publisher: 'Fostride Inc.',
@@ -22,22 +22,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.fostride.com',
-    title: 'Fostride R3Bin - AI-Powered Smart Waste Intelligence',
-    description: 'Transform waste into actionable intelligence with R3Bin. AI-powered segregation, real-time analytics, and ESG compliance.',
-    siteName: 'Fostride R3Bin',
+    title: 'Fostride - Waste Intelligence Infrastructure',
+    description: 'Building foundational waste intelligence infrastructure for India with W.I.S.E.',
+    siteName: 'Fostride',
     images: [
       {
-        url: '/images/og-image.jpg', // Make sure to add this image later or use a generic one
+        url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Fostride R3Bin Dashboard',
+        alt: 'Fostride - Waste Intelligent Sorting Engine',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fostride R3Bin - AI-Powered Smart Waste Intelligence',
-    description: 'Automatic waste segregation and real-time analytics for modern enterprises.',
+    title: 'Fostride - Waste Intelligence Infrastructure',
+    description: 'Transforming waste management with W.I.S.E. — Waste Intelligent Sorting Engine.',
     creator: '@fostride',
     images: ['/images/og-image.jpg'],
   },
