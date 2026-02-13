@@ -4,7 +4,7 @@ import { useState } from "react"
 import { ArrowRight } from "lucide-react"
 
 export function WelcomeEngine() {
-  const [selectedStep, setSelectedStep] = useState<string | null>(null)
+  const [hoveredStep, setHoveredStep] = useState<string | null>(null)
   return (
     <section className="relative py-24 overflow-hidden">
       {/* Background */}
@@ -33,9 +33,10 @@ export function WelcomeEngine() {
             ].map((item) => (
               <div
                 key={item.title}
-                onClick={() => setSelectedStep(selectedStep === item.title ? null : item.title)}
-                className={`rounded-lg border transition-all duration-300 cursor-pointer group
-                  ${selectedStep === item.title 
+                onMouseEnter={() => setHoveredStep(item.title)}
+                onMouseLeave={() => setHoveredStep(null)}
+                className={`rounded-lg border transition-all duration-300 group
+                  ${hoveredStep === item.title 
                     ? 'border-emerald-400 bg-emerald-500/15 shadow-lg shadow-emerald-500/20' 
                     : 'border-emerald-500/20 bg-black/40 hover:border-emerald-500/40 hover:bg-emerald-500/5'}
                 `}
@@ -44,11 +45,11 @@ export function WelcomeEngine() {
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-semibold text-white">{item.title}</h4>
                     <div className={`w-2 h-2 rounded-full transition-all ${
-                      selectedStep === item.title ? 'bg-emerald-400' : 'bg-gray-600 group-hover:bg-emerald-400/60'
+                      hoveredStep === item.title ? 'bg-emerald-400' : 'bg-gray-600 group-hover:bg-emerald-400/60'
                     }`} />
                   </div>
                   <p className="text-sm text-gray-400">{item.desc}</p>
-                  {selectedStep === item.title && (
+                  {hoveredStep === item.title && (
                     <div className="mt-4 pt-4 border-t border-emerald-500/30 animate-slideIn">
                       <p className="text-sm text-emerald-300">{item.detail}</p>
                     </div>
@@ -61,62 +62,121 @@ export function WelcomeEngine() {
 
         {/* Process flow */}
         <div className="relative">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2">
+          {/* Main flow container */}
+          <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6 lg:gap-0">
             {["Deploy", "Collect Data", "Train", "Improve", "Scale"].map((step, idx) => (
-              <div key={step} className="flex items-center gap-4 md:gap-2 w-full md:w-auto">
+              <div key={step} className="flex-1 flex items-center gap-0">
+                {/* Step node */}
                 <div 
-                  onClick={() => setSelectedStep(selectedStep === step ? null : step)}
-                  className="relative group cursor-pointer flex-1 md:flex-none"
+                  onMouseEnter={() => setHoveredStep(step)}
+                  onMouseLeave={() => setHoveredStep(null)}
+                  className="relative group flex-1 lg:flex-none"
                 >
-                  <div className={`absolute inset-0 rounded-full blur-lg transition-all ${
-                    selectedStep === step 
-                      ? 'bg-emerald-400/40 blur-xl' 
-                      : 'bg-emerald-500/10 group-hover:bg-emerald-500/20 group-hover:blur-xl'
+                  {/* Background glow */}
+                  <div className={`absolute inset-0 rounded-lg blur-lg transition-all duration-500 ${
+                    hoveredStep === step 
+                      ? 'bg-emerald-400/50 blur-xl' 
+                      : 'bg-emerald-500/10 group-hover:bg-emerald-500/25 group-hover:blur-xl'
                   }`} />
-                  <div className={`relative w-full md:w-24 py-3 px-4 rounded-full border transition-all duration-300 text-center
-                    ${selectedStep === step 
-                      ? 'border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-500/30' 
-                      : 'border-emerald-500/40 bg-black/60 hover:border-emerald-500/60'}
+                  
+                  {/* Card */}
+                  <div className={`relative px-6 py-4 rounded-lg border transition-all duration-500 text-center
+                    ${hoveredStep === step 
+                      ? 'border-emerald-300 bg-emerald-500/25 shadow-lg shadow-emerald-500/40' 
+                      : 'border-emerald-500/30 bg-black/50 hover:border-emerald-400/60'}
                   `}>
-                    <span className="text-sm md:text-xs font-semibold text-white whitespace-nowrap">{step}</span>
+                    <span className="text-sm font-semibold text-white">{step}</span>
+                    {hoveredStep === step && (
+                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-emerald-300 font-mono whitespace-nowrap animate-slideIn">
+                        ✓ Active
+                      </div>
+                    )}
                   </div>
-                  {selectedStep === step && (
-                    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-xs text-emerald-300 font-mono whitespace-nowrap animate-slideIn">
-                      ✓ Processing
-                    </div>
-                  )}
                 </div>
+
+                {/* Arrow separator */}
                 {idx < 4 && (
-                  <ArrowRight className="hidden md:block w-5 h-5 text-emerald-500/40 flex-shrink-0 group-hover:text-emerald-500/60 transition-colors" />
+                  <div className="hidden lg:flex items-center justify-center w-12 h-12 flex-shrink-0">
+                    <div className={`relative transition-all duration-500 ${hoveredStep === step || hoveredStep === ["Deploy", "Collect Data", "Train", "Improve", "Scale"][idx + 1] ? 'scale-125' : ''}`}>
+                      <svg
+                        className={`w-6 h-6 transition-colors duration-500 ${
+                          hoveredStep === step || hoveredStep === ["Deploy", "Collect Data", "Train", "Improve", "Scale"][idx + 1]
+                            ? 'text-emerald-400'
+                            : 'text-emerald-500/40 group-hover:text-emerald-500/60'
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M13 5l7 7m0 0l-7 7m7-7H6"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 )}
+
+                {/* Mobile arrow */}
                 {idx < 4 && (
-                  <div className="md:hidden w-full h-px bg-gradient-to-r from-emerald-500/40 to-transparent" />
+                  <div className="lg:hidden w-full h-px bg-gradient-to-r from-emerald-500/30 to-transparent" />
                 )}
               </div>
             ))}
           </div>
 
-          {/* Center label */}
-          <div className="text-center mt-12">
-            <p className="text-gray-400 text-sm">
-              <span className="text-emerald-400">💫</span> Deployment-based machine learning loop — Click any step to see what happens
-            </p>
+          {/* Details section */}
+          <div className="mt-16 grid md:grid-cols-5 gap-4">
+            {[
+              { step: "Deploy", desc: "Launch W.I.S.E. in your waste management ecosystem" },
+              { step: "Collect Data", desc: "Real-time data collection from AI vision systems" },
+              { step: "Train", desc: "ML models learn from deployment data patterns" },
+              { step: "Improve", desc: "System accuracy improves with each deployment" },
+              { step: "Scale", desc: "Scale intelligence across entire infrastructure" },
+            ].map((item) => (
+              <div
+                key={item.step}
+                onMouseEnter={() => setHoveredStep(item.step)}
+                onMouseLeave={() => setHoveredStep(null)}
+                className={`p-4 rounded-lg border transition-all duration-300 text-center
+                  ${hoveredStep === item.step
+                    ? 'border-emerald-400 bg-emerald-500/15'
+                    : 'border-emerald-500/20 bg-black/30 hover:border-emerald-500/30'}
+                `}
+              >
+                <p className={`text-xs font-semibold uppercase tracking-wide transition-colors ${
+                  hoveredStep === item.step ? 'text-emerald-300' : 'text-gray-400'
+                }`}>
+                  {item.step}
+                </p>
+                <p className={`text-xs mt-2 leading-relaxed transition-colors ${
+                  hoveredStep === item.step ? 'text-gray-200' : 'text-gray-500'
+                }`}>
+                  {item.desc}
+                </p>
+              </div>
+            ))}
           </div>
 
-          {/* Animated flow visualization */}
-          <div className="mt-12 p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-            <div className="space-y-2 text-sm text-gray-300">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                <span>W.I.S.E. operates as a continuous learning system</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                <span>Every deployment strengthens the intelligence layer</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-                <span>Improvements compound across your entire waste management network</span>
+          {/* Continuous learning info */}
+          <div className="mt-12 p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm">
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-emerald-300">Continuous Learning Loop</h3>
+              <div className="space-y-2 text-sm text-gray-300">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  <span>Every deployment feeds data back into the training cycle</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  <span>Intelligence compounds across your entire waste network</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                  <span>W.I.S.E. becomes smarter with every unit deployed</span>
+                </div>
               </div>
             </div>
           </div>

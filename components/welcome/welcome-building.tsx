@@ -52,7 +52,7 @@ export function WelcomeBuilding() {
                 key={feature.title}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className={`group relative rounded-xl border transition-all duration-300 overflow-hidden cursor-pointer
+                className={`group relative rounded-xl border transition-all duration-300 overflow-hidden
                   ${isHovered 
                     ? 'border-emerald-400 bg-emerald-500/15 shadow-lg shadow-emerald-500/20' 
                     : 'border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/30'}
